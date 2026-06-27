@@ -1,0 +1,11 @@
+{
+  "formTitle": "Customer Feedback Form",
+  "fields": [
+    { "id": "full_name", "label": "Full Name", "type": "text", "placeholder": "Jane Smith", "required": true },
+    { "id": "email", "label": "Email Address", "type": "email", "placeholder": "jane@example.com", "required": true },
+    { "id": "rating", "label": "Overall Rating", "type": "select", "required": true, "options": ["5 - Excellent", "4 - Good", "3 - Average", "2 - Poor", "1 - Terrible"] },
+    { "id": "product", "label": "Product / Service Used", "type": "text", "placeholder": "e.g. Premium Plan", "required": false },
+    { "id": "feedback", "label": "Your Feedback", "type": "textarea", "placeholder": "Tell us about your experience...", "required": true },
+    { "id": "recommend", "label": "Would you recommend us?", "type": "select", "required": false, "options": ["Yes, definitely", "Maybe", "No"] }
+  ]
+}

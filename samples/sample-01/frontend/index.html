@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Expense Tracker</title>
+  <style>
+    :root {
+      --bg: #f0f4f8;
+      --surface: #ffffff;
+      --primary: #4f46e5;
+      --primary-hover: #4338ca;
+      --danger: #ef4444;
+      --danger-hover: #dc2626;
+      --text: #1e293b;
+      --text-muted: #64748b;
+      --border: #e2e8f0;
+      --radius: 10px;
+      --shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: system-ui, sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+    header { background: var(--primary); color: #fff; padding: 20px 32px; }
+    header h1 { font-size: 1.5rem; font-weight: 700; }
+    header p { font-size: 0.875rem; opacity: 0.85; margin-top: 2px; }
+    main { max-width: 960px; margin: 0 auto; padding: 32px 16px; display: grid; gap: 24px; }
+    .card { background: var(--surface); border-radius: var(--radius); padding: 24px; box-shadow: var(--shadow); }
+    .card h2 { font-size: 1rem; font-weight: 600; margin-bottom: 16px; color: var(--text); }
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .form-grid .full { grid-column: 1 / -1; }
+    label { display: block; font-size: 0.8rem; font-weight: 500; color: var(--text-muted); margin-bottom: 4px; }
+    input, select { width: 100%; padding: 9px 12px; border: 1px solid var(--border); border-radius: 6px; font-size: 0.9rem; color: var(--text); background: #fff; outline: none; transition: border-color 0.2s; }
+    input:focus, select:focus { border-color: var(--primary); }
+    .btn { padding: 9px 20px; border: none; border-radius: 6px; font-size: 0.875rem; font-weight: 600; cursor: pointer; transition: background 0.2s; }
+    .btn-primary { background: var(--primary); color: #fff; }
+    .btn-primary:hover { background: var(--primary-hover); }
+    .btn-danger { background: transparent; color: var(--danger); border: 1px solid var(--border); font-size: 0.75rem; padding: 4px 10px; }
+    .btn-danger:hover { background: #fef2f2; border-color: var(--danger); }
+    .filter-bar { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; }
+    .filter-btn { padding: 5px 14px; border-radius: 20px; border: 1px solid var(--border); background: #fff; font-size: 0.8rem; cursor: pointer; transition: all 0.2s; }
+    .filter-btn.active { background: var(--primary); color: #fff; border-color: var(--primary); }
+    table { width: 100%; border-collapse: collapse; font-size: 0.875rem; }
+    th { text-align: left; padding: 8px 12px; border-bottom: 2px solid var(--border); font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; }
+    td { padding: 10px 12px; border-bottom: 1px solid var(--border); }
+    tr:last-child td { border-bottom: none; }
+    .amount { font-weight: 600; color: var(--danger); }
+    .category-badge { display: inline-block; padding: 2px 10px; border-radius: 12px; font-size: 0.75rem; font-weight: 500; background: #ede9fe; color: #5b21b6; }
+    .summary-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 12px; }
+    .summary-item { background: var(--bg); border-radius: 8px; padding: 14px; }
+    .summary-item .cat { font-size: 0.75rem; color: var(--text-muted); margin-bottom: 4px; }
+    .summary-item .total { font-size: 1.25rem; font-weight: 700; color: var(--primary); }
+    .summary-item .count { font-size: 0.7rem; color: var(--text-muted); }
+    .empty { text-align: center; color: var(--text-muted); padding: 32px; font-size: 0.9rem; }
+    .grand-total { text-align: right; margin-top: 12px; font-size: 0.875rem; color: var(--text-muted); }
+    .grand-total span { font-size: 1.1rem; font-weight: 700; color: var(--text); }
+    #toast { position: fixed; bottom: 24px; right: 24px; background: #1e293b; color: #fff; padding: 10px 18px; border-radius: 8px; font-size: 0.85rem; opacity: 0; transition: opacity 0.3s; pointer-events: none; z-index: 999; }
+    #toast.show { opacity: 1; }
+  </style>
+</head>
+<body>
+<header>
+  <h1>Expense Tracker</h1>
+  <p>Track your spending by category</p>
+</header>
+<main>
+  <div class="card">
+    <h2>Add Expense</h2>
+    <form id="expenseForm">
+      <div class="form-grid">
+        <div class="full">
+          <label>Description</label>
+          <input type="text" id="description" placeholder="e.g. Coffee with client" required />
+        </div>
+        <div>
+          <label>Amount ($)</label>
+          <input type="number" id="amount" placeholder="0.00" step="0.01" min="0.01" required />
+        </div>
+        <div>
+          <label>Date</label>
+          <input type="date" id="date" required />
+        </div>
+        <div>
+          <label>Category</label>
+          <select id="category" required>
+            <option value="">Select category</option>
+            <option value="Food">Food</option>
+            <option value="Transport">Transport</option>
+            <option value="Housing">Housing</option>
+            <option value="Entertainment">Entertainment</option>
+            <option value="Health">Health</option>
+            <option value="Shopping">Shopping</option>
+            <option value="Utilities">Utilities</option>
+            <option value="Other">Other</option>
+          </select>
+        </div>
+        <div>
+          <label>&nbsp;</label>
+          <button type="submit" class="btn btn-primary" style="width:100%">Add Expense</button>
+        </div>
+      </div>
+    </form>
+  </div>
+
+  <div class="card">
+    <h2>Category Summary</h2>
+    <div class="summary-grid" id="summaryGrid"><p class="empty">No expenses yet</p></div>
+    <div class="grand-total" id="grandTotal"></div>
+  </div>
+
+  <div class="card">
+    <h2>Expenses</h2>
+    <div class="filter-bar" id="filterBar">
+      <button class="filter-btn active" data-cat="All">All</button>
+    </div>
+    <table>
+      <thead>
+        <tr>
+          <th>Date</th>
+          <th>Description</th>
+          <th>Category</th>
+          <th>Amount</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody id="expenseList"></tbody>
+    </table>
+    <p class="empty" id="emptyMsg" style="display:none">No expenses found</p>
+  </div>
+</main>
+<div id="toast"></div>
+
+<script>
+  let allExpenses = [];
+  let summary = [];
+  let activeFilter = 'All';
+
+  const form = document.getElementById('expenseForm');
+  const list = document.getElementById('expenseList');
+  const summaryGrid = document.getElementById('summaryGrid');
+  const grandTotal = document.getElementById('grandTotal');
+  const filterBar = document.getElementById('filterBar');
+  const emptyMsg = document.getElementById('emptyMsg');
+
+  // Set today as default date
+  document.getElementById('date').valueAsDate = new Date();
+
+  async function loadData() {
+    const res = await fetch('/api/expenses');
+    const data = await res.json();
+    allExpenses = data.expenses;
+    summary = data.summary;
+    renderSummary();
+    renderFilter();
+    renderList();
+  }
+
+  function renderSummary() {
+    if (!summary.length) {
+      summaryGrid.innerHTML = '<p class="empty">No expenses yet</p>';
+      grandTotal.innerHTML = '';
+      return;
+    }
+    summaryGrid.innerHTML = summary.map(s => `
+      <div class="summary-item">
+        <div class="cat">${s.category}</div>
+        <div class="total">$${s.total.toFixed(2)}</div>
+        <div class="count">${s.count} expense${s.count !== 1 ? 's' : ''}</div>
+      </div>
+    `).join('');
+    const total = summary.reduce((acc, s) => acc + s.total, 0);
+    grandTotal.innerHTML = `Grand Total: <span>$${total.toFixed(2)}</span>`;
+  }
+
+  function renderFilter() {
+    const cats = ['All', ...summary.map(s => s.category)];
+    filterBar.innerHTML = cats.map(cat =>
+      `<button class="filter-btn ${cat === activeFilter ? 'active' : ''}" data-cat="${cat}">${cat}</button>`
+    ).join('');
+    filterBar.querySelectorAll('.filter-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        activeFilter = btn.dataset.cat;
+        filterBar.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        renderList();
+      });
+    });
+  }
+
+  function renderList() {
+    const filtered = activeFilter === 'All' ? allExpenses : allExpenses.filter(e => e.category === activeFilter);
+    if (!filtered.length) {
+      list.innerHTML = '';
+      emptyMsg.style.display = '';
+      return;
+    }
+    emptyMsg.style.display = 'none';
+    list.innerHTML = filtered.map(e => `
+      <tr>
+        <td>${e.date}</td>
+        <td>${escHtml(e.description)}</td>
+        <td><span class="category-badge">${escHtml(e.category)}</span></td>
+        <td class="amount">$${parseFloat(e.amount).toFixed(2)}</td>
+        <td><button class="btn btn-danger" onclick="deleteExpense(${e.id})">Delete</button></td>
+      </tr>
+    `).join('');
+  }
+
+  async function deleteExpense(id) {
+    if (!confirm('Delete this expense?')) return;
+    const res = await fetch(`/api/expenses/${id}`, { method: 'DELETE' });
+    if (res.ok) { showToast('Expense deleted'); loadData(); }
+    else showToast('Error deleting expense');
+  }
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const body = {
+      description: document.getElementById('description').value.trim(),
+      amount: parseFloat(document.getElementById('amount').value),
+      category: document.getElementById('category').value,
+      date: document.getElementById('date').value
+    };
+    const res = await fetch('/api/expenses', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body)
+    });
+    if (res.ok) {
+      showToast('Expense added!');
+      form.reset();
+      document.getElementById('date').valueAsDate = new Date();
+      loadData();
+    } else {
+      const err = await res.json();
+      showToast(err.error || 'Error adding expense');
+    }
+  });
+
+  function escHtml(str) {
+    return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  }
+
+  function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2500);
+  }
+
+  loadData();
+</script>
+</body>
+</html>

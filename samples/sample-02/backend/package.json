@@ -1,0 +1,14 @@
+{
+  "name": "booking-app",
+  "version": "1.0.0",
+  "description": "Booking and availability management app",
+  "main": "backend/server.js",
+  "scripts": {
+    "start": "node backend/server.js",
+    "dev": "node --watch backend/server.js"
+  },
+  "dependencies": {
+    "better-sqlite3": "^9.4.3",
+    "express": "^4.18.2"
+  }
+}

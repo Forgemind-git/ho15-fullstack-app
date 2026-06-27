@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Booking & Availability</title>
+  <style>
+    :root {
+      --bg: #f8fafc;
+      --surface: #ffffff;
+      --primary: #0ea5e9;
+      --primary-hover: #0284c7;
+      --success: #22c55e;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+      --text: #0f172a;
+      --text-muted: #64748b;
+      --border: #e2e8f0;
+      --radius: 10px;
+      --shadow: 0 2px 8px rgba(0,0,0,0.07);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: system-ui, sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+    header { background: var(--primary); color: #fff; padding: 20px 32px; }
+    header h1 { font-size: 1.5rem; font-weight: 700; }
+    header p { font-size: 0.875rem; opacity: 0.85; margin-top: 2px; }
+    main { max-width: 960px; margin: 0 auto; padding: 32px 16px; display: grid; gap: 24px; }
+    .card { background: var(--surface); border-radius: var(--radius); padding: 24px; box-shadow: var(--shadow); }
+    .card h2 { font-size: 1rem; font-weight: 600; margin-bottom: 16px; }
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .form-grid .full { grid-column: 1 / -1; }
+    label { display: block; font-size: 0.8rem; font-weight: 500; color: var(--text-muted); margin-bottom: 4px; }
+    input, select { width: 100%; padding: 9px 12px; border: 1px solid var(--border); border-radius: 6px; font-size: 0.9rem; color: var(--text); background: #fff; outline: none; transition: border-color 0.2s; }
+    input:focus, select:focus { border-color: var(--primary); }
+    .btn { padding: 9px 20px; border: none; border-radius: 6px; font-size: 0.875rem; font-weight: 600; cursor: pointer; transition: background 0.2s; }
+    .btn-primary { background: var(--primary); color: #fff; }
+    .btn-primary:hover { background: var(--primary-hover); }
+    .btn-sm { padding: 4px 10px; font-size: 0.75rem; border-radius: 5px; border: none; cursor: pointer; font-weight: 500; }
+    .btn-confirm { background: #dcfce7; color: #166534; }
+    .btn-confirm:hover { background: #bbf7d0; }
+    .btn-cancel { background: #fee2e2; color: #991b1b; }
+    .btn-cancel:hover { background: #fecaca; }
+    .status-tabs { display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; }
+    .tab { padding: 5px 14px; border-radius: 20px; border: 1px solid var(--border); background: #fff; font-size: 0.8rem; cursor: pointer; transition: all 0.2s; }
+    .tab.active { background: var(--primary); color: #fff; border-color: var(--primary); }
+    .booking-grid { display: grid; gap: 12px; }
+    .booking-card { border: 1px solid var(--border); border-radius: 8px; padding: 14px 16px; display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
+    .booking-info .name { font-weight: 600; font-size: 0.9rem; }
+    .booking-info .meta { font-size: 0.78rem; color: var(--text-muted); margin-top: 3px; }
+    .booking-actions { display: flex; gap: 6px; align-items: center; flex-shrink: 0; }
+    .badge { display: inline-block; padding: 2px 10px; border-radius: 12px; font-size: 0.72rem; font-weight: 600; }
+    .badge-pending { background: #fef3c7; color: #92400e; }
+    .badge-confirmed { background: #dcfce7; color: #166534; }
+    .badge-cancelled { background: #f1f5f9; color: #64748b; }
+    .empty { text-align: center; color: var(--text-muted); padding: 32px; font-size: 0.9rem; }
+    .error-msg { background: #fee2e2; color: #991b1b; padding: 10px 14px; border-radius: 6px; font-size: 0.85rem; margin-top: 10px; display: none; }
+    #toast { position: fixed; bottom: 24px; right: 24px; background: #0f172a; color: #fff; padding: 10px 18px; border-radius: 8px; font-size: 0.85rem; opacity: 0; transition: opacity 0.3s; pointer-events: none; z-index: 999; }
+    #toast.show { opacity: 1; }
+  </style>
+</head>
+<body>
+<header>
+  <h1>Booking & Availability</h1>
+  <p>Schedule services and manage bookings</p>
+</header>
+<main>
+  <div class="card">
+    <h2>New Booking</h2>
+    <form id="bookingForm">
+      <div class="form-grid">
+        <div>
+          <label>Your Name</label>
+          <input type="text" id="name" placeholder="Jane Smith" required />
+        </div>
+        <div>
+          <label>Email</label>
+          <input type="email" id="email" placeholder="jane@example.com" required />
+        </div>
+        <div>
+          <label>Service</label>
+          <select id="service" required>
+            <option value="">Select service</option>
+            <option value="Consultation">Consultation (1h)</option>
+            <option value="Workshop">Workshop (2h)</option>
+            <option value="Review Session">Review Session (30m)</option>
+            <option value="Training">Training (3h)</option>
+          </select>
+        </div>
+        <div>
+          <label>Date</label>
+          <input type="date" id="date" required />
+        </div>
+        <div>
+          <label>Time</label>
+          <select id="time" required>
+            <option value="">Select time</option>
+            <option value="09:00">09:00 AM</option>
+            <option value="10:00">10:00 AM</option>
+            <option value="11:00">11:00 AM</option>
+            <option value="13:00">01:00 PM</option>
+            <option value="14:00">02:00 PM</option>
+            <option value="15:00">03:00 PM</option>
+            <option value="16:00">04:00 PM</option>
+          </select>
+        </div>
+        <div style="display:flex;align-items:flex-end;">
+          <button type="submit" class="btn btn-primary" style="width:100%">Book Now</button>
+        </div>
+      </div>
+      <div class="error-msg" id="errorMsg"></div>
+    </form>
+  </div>
+
+  <div class="card">
+    <h2>Bookings</h2>
+    <div class="status-tabs" id="statusTabs">
+      <button class="tab active" data-status="all">All</button>
+      <button class="tab" data-status="pending">Pending</button>
+      <button class="tab" data-status="confirmed">Confirmed</button>
+      <button class="tab" data-status="cancelled">Cancelled</button>
+    </div>
+    <div class="booking-grid" id="bookingList"></div>
+    <p class="empty" id="emptyMsg" style="display:none">No bookings found</p>
+  </div>
+</main>
+<div id="toast"></div>
+
+<script>
+  let allBookings = [];
+  let activeStatus = 'all';
+
+  // Set tomorrow as default date
+  const tomorrow = new Date();
+  tomorrow.setDate(tomorrow.getDate() + 1);
+  document.getElementById('date').value = tomorrow.toISOString().split('T')[0];
+
+  async function loadBookings() {
+    const res = await fetch('/api/bookings');
+    allBookings = await res.json();
+    renderList();
+  }
+
+  function renderList() {
+    const filtered = activeStatus === 'all' ? allBookings : allBookings.filter(b => b.status === activeStatus);
+    const container = document.getElementById('bookingList');
+    const emptyMsg = document.getElementById('emptyMsg');
+    if (!filtered.length) {
+      container.innerHTML = '';
+      emptyMsg.style.display = '';
+      return;
+    }
+    emptyMsg.style.display = 'none';
+    container.innerHTML = filtered.map(b => `
+      <div class="booking-card">
+        <div class="booking-info">
+          <div class="name">${escHtml(b.name)}</div>
+          <div class="meta">${escHtml(b.email)} &bull; ${escHtml(b.service)} &bull; ${b.date} at ${b.time}</div>
+        </div>
+        <div class="booking-actions">
+          <span class="badge badge-${b.status}">${b.status}</span>
+          ${b.status === 'pending' ? `
+            <button class="btn btn-sm btn-confirm" onclick="updateStatus(${b.id}, 'confirmed')">Confirm</button>
+            <button class="btn btn-sm btn-cancel" onclick="updateStatus(${b.id}, 'cancelled')">Cancel</button>
+          ` : ''}
+          ${b.status === 'confirmed' ? `
+            <button class="btn btn-sm btn-cancel" onclick="updateStatus(${b.id}, 'cancelled')">Cancel</button>
+          ` : ''}
+        </div>
+      </div>
+    `).join('');
+  }
+
+  async function updateStatus(id, status) {
+    const res = await fetch(`/api/bookings/${id}/status`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ status })
+    });
+    if (res.ok) {
+      showToast(`Booking ${status}`);
+      loadBookings();
+    } else {
+      const err = await res.json();
+      showToast(err.error || 'Update failed');
+    }
+  }
+
+  document.getElementById('statusTabs').addEventListener('click', (e) => {
+    const tab = e.target.closest('.tab');
+    if (!tab) return;
+    activeStatus = tab.dataset.status;
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    tab.classList.add('active');
+    renderList();
+  });
+
+  document.getElementById('bookingForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const errEl = document.getElementById('errorMsg');
+    errEl.style.display = 'none';
+    const body = {
+      name: document.getElementById('name').value.trim(),
+      email: document.getElementById('email').value.trim(),
+      service: document.getElementById('service').value,
+      date: document.getElementById('date').value,
+      time: document.getElementById('time').value
+    };
+    const res = await fetch('/api/bookings', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body)
+    });
+    if (res.ok) {
+      showToast('Booking created!');
+      document.getElementById('bookingForm').reset();
+      document.getElementById('date').value = new Date(Date.now() + 86400000).toISOString().split('T')[0];
+      loadBookings();
+    } else {
+      const err = await res.json();
+      errEl.textContent = err.error || 'Booking failed';
+      errEl.style.display = '';
+    }
+  });
+
+  function escHtml(str) {
+    return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  }
+
+  function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2500);
+  }
+
+  loadBookings();
+</script>
+</body>
+</html>

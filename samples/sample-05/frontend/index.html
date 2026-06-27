@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Leave Request Tracker</title>
+  <style>
+    :root {
+      --bg: #f0f9ff;
+      --surface: #ffffff;
+      --primary: #0369a1;
+      --primary-hover: #0284c7;
+      --success: #16a34a;
+      --danger: #dc2626;
+      --warning: #d97706;
+      --text: #0c1a27;
+      --text-muted: #64748b;
+      --border: #e2e8f0;
+      --radius: 10px;
+      --shadow: 0 2px 8px rgba(0,0,0,0.07);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: system-ui, sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+    header { background: var(--primary); color: #fff; padding: 20px 32px; }
+    header h1 { font-size: 1.5rem; font-weight: 700; }
+    header p { font-size: 0.875rem; opacity: 0.85; margin-top: 2px; }
+    main { max-width: 960px; margin: 0 auto; padding: 32px 16px; display: grid; gap: 24px; }
+    .card { background: var(--surface); border-radius: var(--radius); padding: 24px; box-shadow: var(--shadow); }
+    .card h2 { font-size: 1rem; font-weight: 600; margin-bottom: 16px; }
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .form-grid .full { grid-column: 1 / -1; }
+    label { display: block; font-size: 0.8rem; font-weight: 500; color: var(--text-muted); margin-bottom: 4px; }
+    input, select, textarea { width: 100%; padding: 9px 12px; border: 1px solid var(--border); border-radius: 6px; font-size: 0.9rem; color: var(--text); background: #fff; outline: none; transition: border-color 0.2s; font-family: inherit; }
+    input:focus, select:focus, textarea:focus { border-color: var(--primary); }
+    textarea { resize: vertical; min-height: 70px; }
+    .btn { padding: 9px 20px; border: none; border-radius: 6px; font-size: 0.875rem; font-weight: 600; cursor: pointer; transition: background 0.2s; }
+    .btn-primary { background: var(--primary); color: #fff; }
+    .btn-primary:hover { background: var(--primary-hover); }
+    .btn-sm { padding: 4px 10px; font-size: 0.75rem; border-radius: 5px; border: none; cursor: pointer; font-weight: 500; }
+    .btn-approve { background: #dcfce7; color: #166534; }
+    .btn-approve:hover { background: #bbf7d0; }
+    .btn-reject { background: #fee2e2; color: #991b1b; }
+    .btn-reject:hover { background: #fecaca; }
+    .filter-tabs { display: flex; gap: 4px; border-bottom: 2px solid var(--border); margin-bottom: 16px; }
+    .ftab { padding: 7px 16px; font-size: 0.85rem; font-weight: 500; cursor: pointer; border: none; background: none; color: var(--text-muted); border-bottom: 2px solid transparent; margin-bottom: -2px; transition: all 0.2s; }
+    .ftab.active { color: var(--primary); border-bottom-color: var(--primary); }
+    .ftab .badge-count { display: inline-block; background: #e0f2fe; color: var(--primary); border-radius: 10px; padding: 1px 7px; font-size: 0.7rem; margin-left: 4px; }
+    .requests-list { display: grid; gap: 12px; }
+    .request-card { border: 1px solid var(--border); border-radius: 8px; padding: 14px 16px; }
+    .request-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
+    .employee-name { font-weight: 600; font-size: 0.9rem; }
+    .leave-meta { font-size: 0.78rem; color: var(--text-muted); margin-top: 3px; }
+    .request-reason { font-size: 0.82rem; color: var(--text-muted); margin-top: 8px; border-top: 1px solid var(--border); padding-top: 8px; }
+    .request-footer { display: flex; justify-content: space-between; align-items: center; margin-top: 10px; }
+    .badge { display: inline-block; padding: 3px 10px; border-radius: 12px; font-size: 0.72rem; font-weight: 600; }
+    .badge-pending { background: #fef3c7; color: #92400e; }
+    .badge-approved { background: #dcfce7; color: #166534; }
+    .badge-rejected { background: #fee2e2; color: #991b1b; }
+    .days-count { font-size: 0.72rem; color: var(--text-muted); background: #f0f9ff; border-radius: 10px; padding: 2px 8px; }
+    .action-btns { display: flex; gap: 6px; }
+    .empty { text-align: center; color: var(--text-muted); padding: 32px; font-size: 0.9rem; }
+    .leave-type-badge { display: inline-block; background: #e0f2fe; color: #0369a1; border-radius: 6px; padding: 1px 8px; font-size: 0.72rem; font-weight: 500; margin-left: 6px; }
+    #toast { position: fixed; bottom: 24px; right: 24px; background: #0c1a27; color: #fff; padding: 10px 18px; border-radius: 8px; font-size: 0.85rem; opacity: 0; transition: opacity 0.3s; pointer-events: none; z-index: 999; }
+    #toast.show { opacity: 1; }
+  </style>
+</head>
+<body>
+<header>
+  <h1>Leave Request Tracker</h1>
+  <p>Submit and manage employee leave requests</p>
+</header>
+<main>
+  <div class="card">
+    <h2>Submit Leave Request</h2>
+    <form id="requestForm">
+      <div class="form-grid">
+        <div>
+          <label>Employee Name</label>
+          <input type="text" id="employee_name" placeholder="John Doe" required />
+        </div>
+        <div>
+          <label>Leave Type</label>
+          <select id="leave_type" required>
+            <option value="">Select type</option>
+            <option value="Annual">Annual Leave</option>
+            <option value="Sick">Sick Leave</option>
+            <option value="Personal">Personal Leave</option>
+            <option value="Maternity">Maternity Leave</option>
+            <option value="Paternity">Paternity Leave</option>
+            <option value="Unpaid">Unpaid Leave</option>
+          </select>
+        </div>
+        <div>
+          <label>Start Date</label>
+          <input type="date" id="start_date" required />
+        </div>
+        <div>
+          <label>End Date</label>
+          <input type="date" id="end_date" required />
+        </div>
+        <div class="full">
+          <label>Reason</label>
+          <textarea id="reason" placeholder="Brief reason for leave..." required></textarea>
+        </div>
+        <div class="full">
+          <button type="submit" class="btn btn-primary">Submit Request</button>
+        </div>
+      </div>
+    </form>
+  </div>
+
+  <div class="card">
+    <h2>Leave Requests</h2>
+    <div class="filter-tabs" id="filterTabs">
+      <button class="ftab active" data-status="all">All <span class="badge-count" id="cnt-all">0</span></button>
+      <button class="ftab" data-status="pending">Pending <span class="badge-count" id="cnt-pending">0</span></button>
+      <button class="ftab" data-status="approved">Approved <span class="badge-count" id="cnt-approved">0</span></button>
+      <button class="ftab" data-status="rejected">Rejected <span class="badge-count" id="cnt-rejected">0</span></button>
+    </div>
+    <div class="requests-list" id="requestsList"></div>
+    <p class="empty" id="emptyMsg" style="display:none">No leave requests found</p>
+  </div>
+</main>
+<div id="toast"></div>
+
+<script>
+  let allRequests = [];
+  let activeStatus = 'all';
+
+  async function loadRequests() {
+    const res = await fetch('/api/requests');
+    allRequests = await res.json();
+    updateCounts();
+    renderList();
+  }
+
+  function updateCounts() {
+    document.getElementById('cnt-all').textContent = allRequests.length;
+    ['pending', 'approved', 'rejected'].forEach(s => {
+      document.getElementById(`cnt-${s}`).textContent = allRequests.filter(r => r.status === s).length;
+    });
+  }
+
+  function calcDays(start, end) {
+    const diff = (new Date(end) - new Date(start)) / (1000 * 60 * 60 * 24) + 1;
+    return diff;
+  }
+
+  function renderList() {
+    const filtered = activeStatus === 'all' ? allRequests : allRequests.filter(r => r.status === activeStatus);
+    const list = document.getElementById('requestsList');
+    const empty = document.getElementById('emptyMsg');
+    if (!filtered.length) { list.innerHTML = ''; empty.style.display = ''; return; }
+    empty.style.display = 'none';
+    list.innerHTML = filtered.map(r => {
+      const days = calcDays(r.start_date, r.end_date);
+      const isPending = r.status === 'pending';
+      return `
+        <div class="request-card">
+          <div class="request-header">
+            <div>
+              <div class="employee-name">${escHtml(r.employee_name)} <span class="leave-type-badge">${escHtml(r.leave_type)}</span></div>
+              <div class="leave-meta">${r.start_date} to ${r.end_date}</div>
+            </div>
+            <span class="badge badge-${r.status}">${r.status}</span>
+          </div>
+          <div class="request-reason">${escHtml(r.reason)}</div>
+          <div class="request-footer">
+            <span class="days-count">${days} day${days !== 1 ? 's' : ''}</span>
+            ${isPending ? `
+              <div class="action-btns">
+                <button class="btn btn-sm btn-approve" onclick="updateStatus(${r.id}, 'approved')">Approve</button>
+                <button class="btn btn-sm btn-reject" onclick="updateStatus(${r.id}, 'rejected')">Reject</button>
+              </div>
+            ` : `<span style="font-size:0.72rem;color:var(--text-muted)">${new Date(r.updated_at).toLocaleDateString()}</span>`}
+          </div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  async function updateStatus(id, status) {
+    const res = await fetch(`/api/requests/${id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ status })
+    });
+    if (res.ok) {
+      showToast(`Request ${status}`);
+      loadRequests();
+    } else {
+      const err = await res.json();
+      showToast(err.error || 'Update failed');
+    }
+  }
+
+  document.getElementById('filterTabs').addEventListener('click', (e) => {
+    const tab = e.target.closest('.ftab');
+    if (!tab) return;
+    activeStatus = tab.dataset.status;
+    document.querySelectorAll('.ftab').forEach(t => t.classList.remove('active'));
+    tab.classList.add('active');
+    renderList();
+  });
+
+  document.getElementById('requestForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const body = {
+      employee_name: document.getElementById('employee_name').value.trim(),
+      leave_type: document.getElementById('leave_type').value,
+      start_date: document.getElementById('start_date').value,
+      end_date: document.getElementById('end_date').value,
+      reason: document.getElementById('reason').value.trim()
+    };
+    const res = await fetch('/api/requests', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body)
+    });
+    if (res.ok) {
+      showToast('Leave request submitted!');
+      document.getElementById('requestForm').reset();
+      loadRequests();
+    } else {
+      const err = await res.json();
+      showToast(err.error || 'Error submitting request');
+    }
+  });
+
+  // Set default dates (today and tomorrow)
+  const today = new Date().toISOString().split('T')[0];
+  const tomorrow = new Date(Date.now() + 86400000).toISOString().split('T')[0];
+  document.getElementById('start_date').value = today;
+  document.getElementById('end_date').value = tomorrow;
+
+  function escHtml(str) {
+    return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  }
+
+  function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2500);
+  }
+
+  loadRequests();
+</script>
+</body>
+</html>
