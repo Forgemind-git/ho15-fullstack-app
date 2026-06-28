@@ -2,13 +2,18 @@
 
 > Hands-on portfolio project · **Week 6** · **Solo** · module M17. Part of the **ForgeMind AI — AI Productivity Essentials** course.
 
-**You are on the `starter` branch** — this is the skeleton for students to fill in.
-To see a completed reference implementation, switch to the `main` branch.
+**You are on the `starter` branch.** Every sample here is a **finished, working app** you can
+open and use straight away — then copy and adapt for your own use case. Nothing to fill in
+from scratch. To see the polished reference (with the optional full-stack backend), switch to
+the `main` branch.
+
+**No API key needed. No server. No terminal required.** Just your Claude.ai subscription and
+a web browser.
 
 ## Your goal
 
-Build and deploy a full CRUD app that runs in the browser using localStorage.
-Deploy free to GitHub Pages — no server or database needed.
+Open a sample, use it, then rebuild your own version by prompting Claude.ai — a full CRUD app
+that runs in the browser using localStorage. Deploy free to GitHub Pages.
 
 **Done when:** You have a working app at a live GitHub Pages URL.
 
@@ -27,15 +32,18 @@ Choose **one** sample from the list below — or bring your own (get it approved
 ## How to use this starter
 
 1. Open the landing page (`index.html`) to browse the samples.
-2. Pick one sample folder and open its `README.md` for full instructions.
-3. Open the sample's `index.html` in your browser — you will see a skeleton layout.
-4. Read the TODO comments in the HTML and JavaScript and fill them in using Claude.ai.
-5. Test all operations, then push to GitHub and enable Pages for a live link.
+2. Pick one sample folder and open its `README.md`.
+3. Double-click that sample's `index.html` — it opens in your browser and **works right away**.
+   Try adding, deleting and filtering entries to see what it does.
+4. Each sample README has an **example prompt**: paste it into Claude.ai to rebuild the app
+   yourself, then tweak the prompt to fit your own use case.
+5. Save Claude's code as `index.html`, push it to GitHub and enable **Settings → Pages** for a
+   free live link.
 6. Paste your live URL in the sample's README where it says "Deployed at".
 
 ## What to submit
 
-Your GitHub Pages URL + the sample folder you built (with your filled-in `index.html`).
+Your GitHub Pages URL + the sample folder you built (with your `index.html`).
 
 ---
 

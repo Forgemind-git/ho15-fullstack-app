@@ -1,4 +1,3 @@
-<!-- TODO: Fill in the form fields, implement the functions in the script block, and style any remaining sections -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -9,22 +8,28 @@
     * { margin:0; padding:0; box-sizing:border-box; }
     body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif; background:#F8F9FA; color:#1a1a2e; min-height:100vh; }
     :root { --color:#BE185D; }
-    .todo-bar { background:#FEF3C7; border-left:4px solid #D97706; padding:10px 20px; font-size:13px; color:#92400E; }
     header { background:var(--color); color:#fff; padding:24px 32px; }
     header h1 { font-size:22px; font-weight:800; margin-bottom:4px; }
     header p { font-size:14px; opacity:.85; }
     .container { max-width:900px; margin:0 auto; padding:24px 16px; }
     .card { background:#fff; border-radius:10px; box-shadow:0 1px 6px rgba(0,0,0,.08); padding:24px; margin-bottom:20px; }
-    .card h2 { font-size:16px; font-weight:700; margin-bottom:16px; color:var(--color); }
+    .card-head { display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; }
+    .card h2 { font-size:16px; font-weight:700; color:var(--color); }
     .form-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
     @media(max-width:600px){ .form-grid{ grid-template-columns:1fr; } }
     label { font-size:13px; font-weight:600; color:#374151; display:block; margin-bottom:4px; }
     input, select { width:100%; padding:9px 12px; border:1px solid #D1D5DB; border-radius:6px; font-size:14px; outline:none; }
     input:focus, select:focus { border-color:var(--color); }
     .btn { padding:10px 20px; background:var(--color); color:#fff; border:none; border-radius:6px; font-size:14px; font-weight:600; cursor:pointer; margin-top:12px; }
+    .btn-sm { padding:6px 12px; font-size:12px; margin-top:0; }
+    .btn-ghost { background:#fff; color:var(--color); border:1px solid var(--color); }
     .filter-bar { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:16px; }
     .filter-btn { padding:6px 14px; border:2px solid #E5E7EB; background:#fff; border-radius:20px; font-size:13px; cursor:pointer; font-weight:600; color:#6B7280; }
     .filter-btn.active { border-color:var(--color); color:var(--color); }
+    table { width:100%; border-collapse:collapse; }
+    th, td { text-align:left; padding:10px 8px; font-size:14px; border-bottom:1px solid #F1F1F4; }
+    th { font-size:11px; text-transform:uppercase; letter-spacing:.04em; color:#9CA3AF; }
+    .del-btn { background:none; border:none; color:#DC2626; cursor:pointer; font-size:13px; font-weight:600; }
     .stats-bar { display:flex; gap:12px; flex-wrap:wrap; }
     .stat-box { background:#F9FAFB; border-radius:8px; padding:12px 16px; min-width:120px; }
     .stat-label { font-size:11px; color:#9CA3AF; font-weight:700; text-transform:uppercase; letter-spacing:.04em; }
@@ -33,10 +38,6 @@
   </style>
 </head>
 <body>
-
-  <div class="todo-bar">
-    Starter skeleton — open README.md for instructions, then fill in the TODOs below.
-  </div>
 
   <header>
     <h1>Expense Tracker</h1>
@@ -47,33 +48,32 @@
 
     <!-- FORM SECTION -->
     <div class="card">
-      <h2>Add Expense</h2>
+      <h2 style="margin-bottom:16px;">Add Expense</h2>
       <div class="form-grid">
 
-        <!-- TODO: Add a label + input for Description -->
         <div>
-          <label>Description</label>
+          <label for="description">Description</label>
           <input type="text" id="description" placeholder="e.g. Coffee, Taxi, Software...">
         </div>
 
-        <!-- TODO: Add a label + input for Amount -->
         <div>
-          <label>Amount</label>
+          <label for="amount">Amount</label>
           <input type="number" id="amount" placeholder="0.00" min="0" step="0.01">
         </div>
 
-        <!-- TODO: Add a label + select for Category (Food / Transport / Work / Other) -->
         <div>
-          <label>Category</label>
+          <label for="category">Category</label>
           <select id="category">
             <option value="">-- select category --</option>
-            <!-- TODO: Add options: Food, Transport, Work, Other -->
+            <option value="Food">Food</option>
+            <option value="Transport">Transport</option>
+            <option value="Work">Work</option>
+            <option value="Other">Other</option>
           </select>
         </div>
 
-        <!-- TODO: Add a label + date input for Date -->
         <div>
-          <label>Date</label>
+          <label for="date">Date</label>
           <input type="date" id="date">
         </div>
 
@@ -83,12 +83,17 @@
 
     <!-- LIST SECTION -->
     <div class="card">
-      <h2>All Expenses</h2>
+      <div class="card-head">
+        <h2>All Expenses</h2>
+        <button class="btn btn-sm btn-ghost" onclick="exportCSV()">Export CSV</button>
+      </div>
 
-      <!-- TODO: Add filter buttons for All / Food / Transport / Work / Other -->
-      <div class="filter-bar">
-        <button class="filter-btn active">All</button>
-        <!-- TODO: Add more filter buttons -->
+      <div class="filter-bar" id="filter-bar">
+        <button class="filter-btn active" onclick="setFilter('all', this)">All</button>
+        <button class="filter-btn" onclick="setFilter('Food', this)">Food</button>
+        <button class="filter-btn" onclick="setFilter('Transport', this)">Transport</button>
+        <button class="filter-btn" onclick="setFilter('Work', this)">Work</button>
+        <button class="filter-btn" onclick="setFilter('Other', this)">Other</button>
       </div>
 
       <div id="entries-list">
@@ -98,13 +103,32 @@
 
     <!-- STATS SECTION -->
     <div class="card">
-      <h2>Summary by Category</h2>
+      <h2 style="margin-bottom:16px;">Summary by Category</h2>
       <div class="stats-bar">
         <div class="stat-box">
           <div class="stat-label">Total Entries</div>
           <div class="stat-val" id="total-count">0</div>
         </div>
-        <!-- TODO: Add stat boxes for each category total -->
+        <div class="stat-box">
+          <div class="stat-label">Total Spent</div>
+          <div class="stat-val" id="total-amount">$0.00</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-label">Food</div>
+          <div class="stat-val" id="sum-Food">$0.00</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-label">Transport</div>
+          <div class="stat-val" id="sum-Transport">$0.00</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-label">Work</div>
+          <div class="stat-val" id="sum-Work">$0.00</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-label">Other</div>
+          <div class="stat-val" id="sum-Other">$0.00</div>
+        </div>
       </div>
     </div>
 
@@ -113,6 +137,7 @@
 <script>
   // ─── Data storage ────────────────────────────────────────────────────────────
   const STORAGE_KEY = 'ho15-expense-tracker';
+  let activeFilter = 'all';
 
   function loadEntries() {
     return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
@@ -122,23 +147,43 @@
     localStorage.setItem(STORAGE_KEY, JSON.stringify(entries));
   }
 
+  function escapeHtml(str) {
+    return String(str).replace(/[&<>"']/g, c => (
+      { '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c]
+    ));
+  }
+
   // ─── Save a new entry ────────────────────────────────────────────────────────
   function saveEntry() {
-    // TODO: Read values from your form fields
-    // const description = document.getElementById('description').value.trim();
-    // const amount = ...
-    // const category = ...
-    // const date = ...
+    const description = document.getElementById('description').value.trim();
+    const amount = parseFloat(document.getElementById('amount').value);
+    const category = document.getElementById('category').value;
+    const date = document.getElementById('date').value;
 
-    // TODO: Validate — alert and return early if any required field is empty
+    if (!description || isNaN(amount) || !category || !date) {
+      alert('Please fill in all fields.');
+      return;
+    }
 
-    // TODO: Create an entry object with all fields + a unique id + timestamp
-    // const entry = { id: Date.now(), description, amount, category, date };
+    const entry = { id: Date.now(), description, amount, category, date };
 
-    // TODO: Load existing entries, push the new one, save back with saveEntries()
+    const entries = loadEntries();
+    entries.push(entry);
+    saveEntries(entries);
 
-    // TODO: Clear the form fields
+    document.getElementById('description').value = '';
+    document.getElementById('amount').value = '';
+    document.getElementById('category').value = '';
+    document.getElementById('date').value = new Date().toISOString().split('T')[0];
 
+    renderList();
+  }
+
+  // ─── Filter by category ──────────────────────────────────────────────────────
+  function setFilter(category, btn) {
+    activeFilter = category;
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
     renderList();
   }
 
@@ -147,39 +192,88 @@
     const entries = loadEntries();
     const container = document.getElementById('entries-list');
 
-    // TODO: If entries array is empty, show the empty state paragraph
+    let visible = entries;
+    if (activeFilter !== 'all') {
+      visible = entries.filter(e => e.category === activeFilter);
+    }
 
-    // TODO: Filter entries by the active category filter (if one is set)
+    if (visible.length === 0) {
+      container.innerHTML = '<p class="empty-state">No entries yet &mdash; add one above.</p>';
+      updateStats(entries);
+      return;
+    }
 
-    // TODO: Map each entry to an HTML string (card, table row, or list item)
-    //       Each item must show all fields and include a Delete button that calls deleteEntry(entry.id)
+    // Newest first
+    const sorted = visible.slice().sort((a, b) => b.id - a.id);
 
-    container.innerHTML = '<p class="empty-state">No entries yet &mdash; add one above.</p>';
-    // TODO: Replace the line above with your rendered HTML
+    const rows = sorted.map(e => `
+      <tr>
+        <td>${escapeHtml(e.description)}</td>
+        <td>$${Number(e.amount).toFixed(2)}</td>
+        <td>${escapeHtml(e.category)}</td>
+        <td>${escapeHtml(e.date)}</td>
+        <td><button class="del-btn" onclick="deleteEntry(${e.id})">Delete</button></td>
+      </tr>`).join('');
+
+    container.innerHTML = `
+      <table>
+        <thead>
+          <tr><th>Description</th><th>Amount</th><th>Category</th><th>Date</th><th></th></tr>
+        </thead>
+        <tbody>${rows}</tbody>
+      </table>`;
 
     updateStats(entries);
   }
 
   // ─── Delete an entry ────────────────────────────────────────────────────────
   function deleteEntry(id) {
-    // TODO: Load entries, filter out the one with this id, save back, re-render
+    if (!confirm('Delete this expense?')) return;
+    const entries = loadEntries().filter(e => e.id !== id);
+    saveEntries(entries);
+    renderList();
   }
 
   // ─── Update summary stats ───────────────────────────────────────────────────
   function updateStats(entries) {
     document.getElementById('total-count').textContent = entries.length;
-    // TODO: Calculate total amount per category and display in the stat boxes
-    // TODO: Update any other summary figures you added to the stats section
+
+    const totals = { Food: 0, Transport: 0, Work: 0, Other: 0 };
+    let grand = 0;
+    entries.forEach(e => {
+      if (totals[e.category] !== undefined) totals[e.category] += Number(e.amount);
+      grand += Number(e.amount);
+    });
+
+    document.getElementById('total-amount').textContent = '$' + grand.toFixed(2);
+    ['Food', 'Transport', 'Work', 'Other'].forEach(cat => {
+      document.getElementById('sum-' + cat).textContent = '$' + totals[cat].toFixed(2);
+    });
   }
 
-  // ─── Extra operations ───────────────────────────────────────────────────────
-  // TODO: Implement filter by category (setFilter function + active button state)
-  // TODO: Implement Export to CSV — convert entries array to CSV and trigger download
+  // ─── Export to CSV ───────────────────────────────────────────────────────────
+  function exportCSV() {
+    const entries = loadEntries();
+    if (entries.length === 0) { alert('No expenses to export yet.'); return; }
+
+    const header = ['Description', 'Amount', 'Category', 'Date'];
+    const lines = entries.map(e =>
+      [e.description, e.amount, e.category, e.date]
+        .map(v => `"${String(v).replace(/"/g, '""')}"`).join(',')
+    );
+    const csv = [header.join(','), ...lines].join('\n');
+
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'expenses.csv';
+    a.click();
+    URL.revokeObjectURL(url);
+  }
 
   // ─── Initialise ─────────────────────────────────────────────────────────────
-  // Set today's date as the default date value
   document.getElementById('date').value = new Date().toISOString().split('T')[0];
-
   renderList();
 </script>
 

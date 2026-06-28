@@ -1,4 +1,3 @@
-<!-- TODO: Fill in the form fields, implement the functions in the script block, and style any remaining sections -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -9,7 +8,6 @@
     * { margin:0; padding:0; box-sizing:border-box; }
     body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif; background:#F8F9FA; color:#1a1a2e; min-height:100vh; }
     :root { --color:#BE185D; }
-    .todo-bar { background:#FEF3C7; border-left:4px solid #D97706; padding:10px 20px; font-size:13px; color:#92400E; }
     header { background:var(--color); color:#fff; padding:24px 32px; }
     header h1 { font-size:22px; font-weight:800; margin-bottom:4px; }
     header p { font-size:14px; opacity:.85; }
@@ -26,6 +24,15 @@
     .filter-bar { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:16px; }
     .filter-btn { padding:6px 14px; border:2px solid #E5E7EB; background:#fff; border-radius:20px; font-size:13px; cursor:pointer; font-weight:600; color:#6B7280; }
     .filter-btn.active { border-color:var(--color); color:var(--color); }
+    table { width:100%; border-collapse:collapse; }
+    th, td { text-align:left; padding:10px 8px; font-size:14px; border-bottom:1px solid #F1F1F4; vertical-align:top; }
+    th { font-size:11px; text-transform:uppercase; letter-spacing:.04em; color:#9CA3AF; }
+    .badge { display:inline-block; padding:3px 10px; border-radius:20px; font-size:12px; font-weight:700; }
+    .b-pending { background:#FEF3C7; color:#92400E; }
+    .b-approved { background:#DCFCE7; color:#166534; }
+    .b-rejected { background:#FEE2E2; color:#991B1B; }
+    .row-btn { background:none; border:1px solid #D1D5DB; border-radius:5px; padding:4px 9px; font-size:12px; font-weight:600; cursor:pointer; margin:2px 4px 2px 0; }
+    .row-btn.del { color:#DC2626; border-color:#FECACA; }
     .stats-bar { display:flex; gap:12px; flex-wrap:wrap; }
     .stat-box { background:#F9FAFB; border-radius:8px; padding:12px 16px; min-width:120px; }
     .stat-label { font-size:11px; color:#9CA3AF; font-weight:700; text-transform:uppercase; letter-spacing:.04em; }
@@ -34,10 +41,6 @@
   </style>
 </head>
 <body>
-
-  <div class="todo-bar">
-    Starter skeleton — open README.md for instructions, then fill in the TODOs below.
-  </div>
 
   <header>
     <h1>Leave Request Tracker</h1>
@@ -51,36 +54,33 @@
       <h2>Submit Leave Request</h2>
       <div class="form-grid">
 
-        <!-- TODO: Add a label + input for Employee Name -->
         <div>
-          <label>Employee Name</label>
+          <label for="empname">Employee Name</label>
           <input type="text" id="empname" placeholder="Full name">
         </div>
 
-        <!-- TODO: Add a label + select for Leave Type (Annual / Sick / Other) -->
         <div>
-          <label>Leave Type</label>
+          <label for="ltype">Leave Type</label>
           <select id="ltype">
             <option value="">-- select type --</option>
-            <!-- TODO: Add options: Annual, Sick, Other -->
+            <option value="Annual">Annual</option>
+            <option value="Sick">Sick</option>
+            <option value="Other">Other</option>
           </select>
         </div>
 
-        <!-- TODO: Add a label + date input for Start Date -->
         <div>
-          <label>Start Date</label>
+          <label for="sdate">Start Date</label>
           <input type="date" id="sdate">
         </div>
 
-        <!-- TODO: Add a label + date input for End Date -->
         <div>
-          <label>End Date</label>
+          <label for="edate">End Date</label>
           <input type="date" id="edate">
         </div>
 
-        <!-- TODO: Add a label + textarea for Reason -->
         <div style="grid-column:1/-1">
-          <label>Reason</label>
+          <label for="reason">Reason</label>
           <textarea id="reason" placeholder="Brief reason for leave..."></textarea>
         </div>
 
@@ -92,10 +92,11 @@
     <div class="card">
       <h2>All Leave Requests</h2>
 
-      <!-- TODO: Add filter buttons for All / Pending / Approved / Rejected -->
       <div class="filter-bar">
         <button class="filter-btn active" onclick="setFilter('all', this)">All</button>
-        <!-- TODO: Add buttons for Pending, Approved, Rejected -->
+        <button class="filter-btn" onclick="setFilter('pending', this)">Pending</button>
+        <button class="filter-btn" onclick="setFilter('approved', this)">Approved</button>
+        <button class="filter-btn" onclick="setFilter('rejected', this)">Rejected</button>
       </div>
 
       <div id="entries-list">
@@ -115,8 +116,18 @@
           <div class="stat-label">Pending</div>
           <div class="stat-val" id="pending-count">0</div>
         </div>
-        <!-- TODO: Add stat boxes for Approved and Rejected counts -->
-        <!-- TODO: Add a "Days Approved" counter (sum of days for approved requests) -->
+        <div class="stat-box">
+          <div class="stat-label">Approved</div>
+          <div class="stat-val" id="approved-count">0</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-label">Rejected</div>
+          <div class="stat-val" id="rejected-count">0</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-label">Days Approved</div>
+          <div class="stat-val" id="days-approved">0</div>
+        </div>
       </div>
     </div>
 
@@ -135,26 +146,52 @@
     localStorage.setItem(STORAGE_KEY, JSON.stringify(entries));
   }
 
-  // ─── Calculate days between two dates ───────────────────────────────────────
+  function escapeHtml(str) {
+    return String(str).replace(/[&<>"']/g, c => (
+      { '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c]
+    ));
+  }
+
+  // ─── Calculate days between two dates (inclusive) ───────────────────────────
   function calcDays(startDate, endDate) {
-    // TODO: Return the number of calendar days from startDate to endDate (inclusive)
-    // Hint: (new Date(endDate) - new Date(startDate)) / 86400000 + 1
-    return 1; // placeholder
+    const ms = new Date(endDate) - new Date(startDate);
+    return Math.floor(ms / 86400000) + 1;
   }
 
   // ─── Save a new leave request ────────────────────────────────────────────────
   function saveEntry() {
-    // TODO: Read values from form fields (empname, ltype, sdate, edate, reason)
+    const name = document.getElementById('empname').value.trim();
+    const type = document.getElementById('ltype').value;
+    const start = document.getElementById('sdate').value;
+    const end = document.getElementById('edate').value;
+    const reason = document.getElementById('reason').value.trim();
 
-    // TODO: Validate — alert and return early if any required field is empty
+    if (!name || !type || !start || !end || !reason) {
+      alert('Please fill in all fields.');
+      return;
+    }
 
-    // TODO: Validate dates — alert if end date is before start date
+    if (new Date(end) < new Date(start)) {
+      alert('End date cannot be before the start date.');
+      return;
+    }
 
-    // TODO: Calculate number of days using calcDays()
+    const days = calcDays(start, end);
 
-    // TODO: Create entry object with all fields + id + days + status: 'pending' + submitted date
+    const entry = {
+      id: Date.now(),
+      name, type, start, end, reason, days,
+      status: 'pending',
+      submitted: new Date().toLocaleDateString()
+    };
 
-    // TODO: Load entries, push new entry, save back, clear form, re-render
+    const entries = loadEntries();
+    entries.push(entry);
+    saveEntries(entries);
+
+    document.getElementById('empname').value = '';
+    document.getElementById('ltype').value = '';
+    document.getElementById('reason').value = '';
 
     renderList();
   }
@@ -164,45 +201,76 @@
     const entries = loadEntries();
     const container = document.getElementById('entries-list');
 
-    // TODO: Filter entries by activeFilter ('all' shows everything, otherwise match status)
+    let visible = entries;
+    if (activeFilter !== 'all') {
+      visible = entries.filter(e => e.status === activeFilter);
+    }
 
-    // TODO: If filtered array is empty, show the empty state
+    if (visible.length === 0) {
+      container.innerHTML = '<p class="empty-state">No entries yet &mdash; add one above.</p>';
+      updateStats(entries);
+      return;
+    }
 
-    // TODO: Map each entry to an HTML card or table row showing:
-    //       Employee name, Leave type, Start-End date range, Days count, Reason, Status badge
-    //       For pending entries: Approve and Reject buttons
-    //       Always: Delete button
+    const sorted = visible.slice().sort((a, b) => b.id - a.id);
 
-    container.innerHTML = '<p class="empty-state">No entries yet &mdash; add one above.</p>';
-    // TODO: Replace the line above with your rendered HTML
+    const rows = sorted.map(e => `
+      <tr>
+        <td>${escapeHtml(e.name)}</td>
+        <td>${escapeHtml(e.type)}</td>
+        <td>${escapeHtml(e.start)} &rarr; ${escapeHtml(e.end)}<br><span style="color:#9CA3AF;font-size:12px;">${e.days} day${e.days === 1 ? '' : 's'}</span></td>
+        <td>${escapeHtml(e.reason)}</td>
+        <td><span class="badge b-${e.status}">${e.status}</span></td>
+        <td>
+          ${e.status === 'pending' ? `
+            <button class="row-btn" onclick="updateStatus(${e.id},'approved')">Approve</button>
+            <button class="row-btn" onclick="updateStatus(${e.id},'rejected')">Reject</button>` : ''}
+          <button class="row-btn del" onclick="deleteEntry(${e.id})">Delete</button>
+        </td>
+      </tr>`).join('');
+
+    container.innerHTML = `
+      <table>
+        <thead><tr><th>Employee</th><th>Type</th><th>Dates</th><th>Reason</th><th>Status</th><th></th></tr></thead>
+        <tbody>${rows}</tbody>
+      </table>`;
 
     updateStats(entries);
   }
 
   // ─── Approve or reject a request ────────────────────────────────────────────
   function updateStatus(id, status) {
-    // TODO: Find entry by id, update its status, save back, re-render
+    const entries = loadEntries();
+    const entry = entries.find(e => e.id === id);
+    if (!entry) return;
+    entry.status = status;
+    saveEntries(entries);
+    renderList();
   }
 
   // ─── Delete a request ────────────────────────────────────────────────────────
   function deleteEntry(id) {
-    // TODO: Filter out the entry with this id, save, re-render
+    if (!confirm('Delete this request?')) return;
+    saveEntries(loadEntries().filter(e => e.id !== id));
+    renderList();
   }
 
   // ─── Filter by status ────────────────────────────────────────────────────────
   function setFilter(status, btn) {
     activeFilter = status;
-    // TODO: Update active class on filter buttons
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
     renderList();
   }
 
   // ─── Update summary stats ────────────────────────────────────────────────────
   function updateStats(entries) {
     document.getElementById('total-count').textContent = entries.length;
-    const pending = entries.filter(e => e.status === 'pending').length;
-    document.getElementById('pending-count').textContent = pending;
-    // TODO: Count approved and rejected entries and update their stat boxes
-    // TODO: Sum days for approved requests and display
+    document.getElementById('pending-count').textContent = entries.filter(e => e.status === 'pending').length;
+    document.getElementById('approved-count').textContent = entries.filter(e => e.status === 'approved').length;
+    document.getElementById('rejected-count').textContent = entries.filter(e => e.status === 'rejected').length;
+    const daysApproved = entries.filter(e => e.status === 'approved').reduce((s, e) => s + (e.days || 0), 0);
+    document.getElementById('days-approved').textContent = daysApproved;
   }
 
   // ─── Initialise ──────────────────────────────────────────────────────────────

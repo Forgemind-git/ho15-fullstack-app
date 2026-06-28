@@ -1,4 +1,3 @@
-<!-- TODO: Fill in the form fields, implement the functions in the script block, and style any remaining sections -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -9,13 +8,13 @@
     * { margin:0; padding:0; box-sizing:border-box; }
     body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif; background:#F8F9FA; color:#1a1a2e; min-height:100vh; }
     :root { --color:#BE185D; }
-    .todo-bar { background:#FEF3C7; border-left:4px solid #D97706; padding:10px 20px; font-size:13px; color:#92400E; }
     header { background:var(--color); color:#fff; padding:24px 32px; }
     header h1 { font-size:22px; font-weight:800; margin-bottom:4px; }
     header p { font-size:14px; opacity:.85; }
     .container { max-width:900px; margin:0 auto; padding:24px 16px; }
     .card { background:#fff; border-radius:10px; box-shadow:0 1px 6px rgba(0,0,0,.08); padding:24px; margin-bottom:20px; }
-    .card h2 { font-size:16px; font-weight:700; margin-bottom:16px; color:var(--color); }
+    .card-head { display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; }
+    .card h2 { font-size:16px; font-weight:700; color:var(--color); }
     .form-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
     @media(max-width:600px){ .form-grid{ grid-template-columns:1fr; } }
     label { font-size:13px; font-weight:600; color:#374151; display:block; margin-bottom:4px; }
@@ -23,6 +22,14 @@
     input:focus, textarea:focus, select:focus { border-color:var(--color); }
     textarea { resize:vertical; min-height:80px; }
     .btn { padding:10px 20px; background:var(--color); color:#fff; border:none; border-radius:6px; font-size:14px; font-weight:600; cursor:pointer; margin-top:12px; }
+    .btn-sm { padding:6px 12px; font-size:12px; margin-top:0; }
+    .btn-ghost { background:#fff; color:var(--color); border:1px solid var(--color); }
+    .sub-card { border:1px solid #F1F1F4; border-radius:8px; padding:14px 16px; margin-bottom:10px; }
+    .sub-top { display:flex; justify-content:space-between; align-items:center; margin-bottom:6px; }
+    .sub-name { font-weight:700; font-size:14px; }
+    .sub-meta { font-size:12px; color:#9CA3AF; }
+    .stars { color:#F59E0B; font-size:14px; }
+    .del-btn { background:none; border:none; color:#DC2626; cursor:pointer; font-size:13px; font-weight:600; }
     .stats-bar { display:flex; gap:12px; flex-wrap:wrap; }
     .stat-box { background:#F9FAFB; border-radius:8px; padding:12px 16px; min-width:120px; }
     .stat-label { font-size:11px; color:#9CA3AF; font-weight:700; text-transform:uppercase; letter-spacing:.04em; }
@@ -31,10 +38,6 @@
   </style>
 </head>
 <body>
-
-  <div class="todo-bar">
-    Starter skeleton — open README.md for instructions, then fill in the TODOs below.
-  </div>
 
   <header>
     <h1>Form Collector</h1>
@@ -45,33 +48,33 @@
 
     <!-- FORM SECTION -->
     <div class="card">
-      <h2>Submit Form</h2>
+      <h2 style="margin-bottom:16px;">Submit Form</h2>
       <div class="form-grid">
 
-        <!-- TODO: Add a label + input for Name -->
         <div>
-          <label>Name</label>
+          <label for="name">Name</label>
           <input type="text" id="name" placeholder="Your name">
         </div>
 
-        <!-- TODO: Add a label + input for Email -->
         <div>
-          <label>Email</label>
+          <label for="email">Email</label>
           <input type="email" id="email" placeholder="you@example.com">
         </div>
 
-        <!-- TODO: Add a label + textarea for Message -->
         <div style="grid-column:1/-1">
-          <label>Message</label>
+          <label for="message">Message</label>
           <textarea id="message" placeholder="Your message or feedback..."></textarea>
         </div>
 
-        <!-- TODO: Add a label + select for Rating (1-5) -->
         <div>
-          <label>Rating (1-5)</label>
+          <label for="rating">Rating (1-5)</label>
           <select id="rating">
             <option value="">-- select rating --</option>
-            <!-- TODO: Add options: 1 through 5 -->
+            <option value="1">1 — Poor</option>
+            <option value="2">2 — Fair</option>
+            <option value="3">3 — Good</option>
+            <option value="4">4 — Very good</option>
+            <option value="5">5 — Excellent</option>
           </select>
         </div>
 
@@ -81,9 +84,11 @@
 
     <!-- LIST SECTION -->
     <div class="card">
-      <h2>All Submissions</h2>
+      <div class="card-head">
+        <h2>All Submissions</h2>
+        <button class="btn btn-sm btn-ghost" onclick="exportCSV()">Export CSV</button>
+      </div>
 
-      <!-- TODO: Add a search input that filters entries as the user types -->
       <div style="margin-bottom:16px;">
         <input type="text" id="search" placeholder="Search by name, email, or message..." oninput="renderList()">
       </div>
@@ -95,7 +100,7 @@
 
     <!-- STATS SECTION -->
     <div class="card">
-      <h2>Summary</h2>
+      <h2 style="margin-bottom:16px;">Summary</h2>
       <div class="stats-bar">
         <div class="stat-box">
           <div class="stat-label">Total Submissions</div>
@@ -105,7 +110,10 @@
           <div class="stat-label">Avg Rating</div>
           <div class="stat-val" id="avg-rating">-</div>
         </div>
-        <!-- TODO: Add more stat boxes if desired (e.g. count per rating) -->
+        <div class="stat-box">
+          <div class="stat-label">5-Star</div>
+          <div class="stat-val" id="five-count">0</div>
+        </div>
       </div>
     </div>
 
@@ -123,18 +131,39 @@
     localStorage.setItem(STORAGE_KEY, JSON.stringify(entries));
   }
 
+  function escapeHtml(str) {
+    return String(str).replace(/[&<>"']/g, c => (
+      { '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c]
+    ));
+  }
+
   // ─── Save a new submission ───────────────────────────────────────────────────
   function saveEntry() {
-    // TODO: Read values from form fields (name, email, message, rating)
+    const name = document.getElementById('name').value.trim();
+    const email = document.getElementById('email').value.trim();
+    const message = document.getElementById('message').value.trim();
+    const rating = document.getElementById('rating').value;
 
-    // TODO: Validate — alert and return early if any required field is empty
+    if (!name || !email || !message || !rating) {
+      alert('Please fill in all fields.');
+      return;
+    }
 
-    // TODO: Create entry object with all fields + id + timestamp
-    // const entry = { id: Date.now(), name, email, message, rating: parseInt(rating), date: new Date().toLocaleString() };
+    const entry = {
+      id: Date.now(),
+      name, email, message,
+      rating: parseInt(rating, 10),
+      date: new Date().toLocaleString()
+    };
 
-    // TODO: Load existing entries, push the new one, save back
+    const entries = loadEntries();
+    entries.push(entry);
+    saveEntries(entries);
 
-    // TODO: Clear the form fields
+    document.getElementById('name').value = '';
+    document.getElementById('email').value = '';
+    document.getElementById('message').value = '';
+    document.getElementById('rating').value = '';
 
     renderList();
   }
@@ -143,39 +172,82 @@
   function renderList() {
     const entries = loadEntries();
     const container = document.getElementById('entries-list');
+    const query = document.getElementById('search').value.trim().toLowerCase();
 
-    // TODO: Read the search input value
-    // const query = document.getElementById('search').value.trim().toLowerCase();
+    let visible = entries;
+    if (query) {
+      visible = entries.filter(e =>
+        e.name.toLowerCase().includes(query) ||
+        e.email.toLowerCase().includes(query) ||
+        e.message.toLowerCase().includes(query)
+      );
+    }
 
-    // TODO: Filter entries where name, email, or message contains the query
+    if (visible.length === 0) {
+      container.innerHTML = `<p class="empty-state">${query ? 'No results match your search.' : 'No entries yet &mdash; add one above.'}</p>`;
+      updateStats(entries);
+      return;
+    }
 
-    // TODO: If filtered array is empty, show the empty state (or "no results" if searching)
+    const sorted = visible.slice().sort((a, b) => b.id - a.id);
 
-    // TODO: Map each entry to an HTML card showing all fields + Delete button
-
-    container.innerHTML = '<p class="empty-state">No entries yet &mdash; add one above.</p>';
-    // TODO: Replace the line above with your rendered HTML
+    container.innerHTML = sorted.map(e => `
+      <div class="sub-card">
+        <div class="sub-top">
+          <div>
+            <div class="sub-name">${escapeHtml(e.name)}</div>
+            <div class="sub-meta">${escapeHtml(e.email)} &middot; ${escapeHtml(e.date)}</div>
+          </div>
+          <div class="stars">${'★'.repeat(e.rating)}${'☆'.repeat(5 - e.rating)}</div>
+        </div>
+        <div style="font-size:14px; margin:6px 0;">${escapeHtml(e.message)}</div>
+        <button class="del-btn" onclick="deleteEntry(${e.id})">Delete</button>
+      </div>`).join('');
 
     updateStats(entries);
   }
 
   // ─── Delete an entry ────────────────────────────────────────────────────────
   function deleteEntry(id) {
-    // TODO: Filter out the entry with this id, save, re-render
+    if (!confirm('Delete this submission?')) return;
+    saveEntries(loadEntries().filter(e => e.id !== id));
+    renderList();
   }
 
   // ─── Update summary stats ────────────────────────────────────────────────────
   function updateStats(entries) {
     document.getElementById('total-count').textContent = entries.length;
-    // TODO: Calculate average rating and display in avg-rating span
-    // TODO: Add any other stats you want to show
+
+    if (entries.length === 0) {
+      document.getElementById('avg-rating').textContent = '-';
+      document.getElementById('five-count').textContent = '0';
+      return;
+    }
+
+    const avg = entries.reduce((s, e) => s + e.rating, 0) / entries.length;
+    document.getElementById('avg-rating').textContent = avg.toFixed(1);
+    document.getElementById('five-count').textContent = entries.filter(e => e.rating === 5).length;
   }
 
   // ─── Export to CSV ───────────────────────────────────────────────────────────
   function exportCSV() {
-    // TODO: Convert entries array to CSV string
-    // Headers: Name, Email, Message, Rating, Date
-    // Create a Blob, generate a URL, and trigger a download link click
+    const entries = loadEntries();
+    if (entries.length === 0) { alert('No submissions to export yet.'); return; }
+
+    const header = ['Name', 'Email', 'Message', 'Rating', 'Date'];
+    const lines = entries.map(e =>
+      [e.name, e.email, e.message, e.rating, e.date]
+        .map(v => `"${String(v).replace(/"/g, '""')}"`).join(',')
+    );
+    const csv = [header.join(','), ...lines].join('\n');
+
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'submissions.csv';
+    a.click();
+    URL.revokeObjectURL(url);
   }
 
   // ─── Initialise ─────────────────────────────────────────────────────────────

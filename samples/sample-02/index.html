@@ -1,4 +1,3 @@
-<!-- TODO: Fill in the form fields, implement the functions in the script block, and style any remaining sections -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -9,7 +8,6 @@
     * { margin:0; padding:0; box-sizing:border-box; }
     body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif; background:#F8F9FA; color:#1a1a2e; min-height:100vh; }
     :root { --color:#BE185D; }
-    .todo-bar { background:#FEF3C7; border-left:4px solid #D97706; padding:10px 20px; font-size:13px; color:#92400E; }
     header { background:var(--color); color:#fff; padding:24px 32px; }
     header h1 { font-size:22px; font-weight:800; margin-bottom:4px; }
     header p { font-size:14px; opacity:.85; }
@@ -27,14 +25,19 @@
     .stat-box { background:#F9FAFB; border-radius:8px; padding:12px 16px; min-width:120px; }
     .stat-label { font-size:11px; color:#9CA3AF; font-weight:700; text-transform:uppercase; letter-spacing:.04em; }
     .stat-val { font-size:20px; font-weight:800; color:var(--color); margin-top:2px; }
+    table { width:100%; border-collapse:collapse; }
+    th, td { text-align:left; padding:10px 8px; font-size:14px; border-bottom:1px solid #F1F1F4; vertical-align:middle; }
+    th { font-size:11px; text-transform:uppercase; letter-spacing:.04em; color:#9CA3AF; }
+    .badge { display:inline-block; padding:3px 10px; border-radius:20px; font-size:12px; font-weight:700; }
+    .b-Pending { background:#FEF3C7; color:#92400E; }
+    .b-Confirmed { background:#DCFCE7; color:#166534; }
+    .b-Cancelled { background:#FEE2E2; color:#991B1B; }
+    .row-btn { background:none; border:1px solid #D1D5DB; border-radius:5px; padding:4px 9px; font-size:12px; font-weight:600; cursor:pointer; margin:2px 4px 2px 0; }
+    .row-btn.del { color:#DC2626; border-color:#FECACA; }
     .empty-state { text-align:center; padding:32px; color:#9CA3AF; font-size:14px; }
   </style>
 </head>
 <body>
-
-  <div class="todo-bar">
-    Starter skeleton — open README.md for instructions, then fill in the TODOs below.
-  </div>
 
   <header>
     <h1>Booking App</h1>
@@ -48,39 +51,33 @@
       <h2>Submit Booking</h2>
       <div class="form-grid">
 
-        <!-- TODO: Add a label + input for Name -->
         <div>
-          <label>Name</label>
+          <label for="name">Name</label>
           <input type="text" id="name" placeholder="Client full name">
         </div>
 
-        <!-- TODO: Add a label + input for Email -->
         <div>
-          <label>Email</label>
+          <label for="email">Email</label>
           <input type="email" id="email" placeholder="email@example.com">
         </div>
 
-        <!-- TODO: Add a label + input (or select) for Service -->
         <div>
-          <label>Service</label>
+          <label for="service">Service</label>
           <input type="text" id="service" placeholder="e.g. Consultation, Hair Cut...">
         </div>
 
-        <!-- TODO: Add a label + date input for Date -->
         <div>
-          <label>Date</label>
+          <label for="bdate">Date</label>
           <input type="date" id="bdate">
         </div>
 
-        <!-- TODO: Add a label + time input for Time -->
         <div>
-          <label>Time</label>
+          <label for="btime">Time</label>
           <input type="time" id="btime">
         </div>
 
       </div>
 
-      <!-- TODO: Show this warning when a conflict is detected -->
       <div class="conflict-warn" id="conflict-warn">
         Conflict detected! A booking already exists for this date and time.
       </div>
@@ -104,7 +101,18 @@
           <div class="stat-label">Total</div>
           <div class="stat-val" id="total-count">0</div>
         </div>
-        <!-- TODO: Add stat boxes for Pending, Confirmed, Cancelled counts -->
+        <div class="stat-box">
+          <div class="stat-label">Pending</div>
+          <div class="stat-val" id="pending-count">0</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-label">Confirmed</div>
+          <div class="stat-val" id="confirmed-count">0</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-label">Cancelled</div>
+          <div class="stat-val" id="cancelled-count">0</div>
+        </div>
       </div>
     </div>
 
@@ -122,20 +130,46 @@
     localStorage.setItem(STORAGE_KEY, JSON.stringify(entries));
   }
 
+  function escapeHtml(str) {
+    return String(str).replace(/[&<>"']/g, c => (
+      { '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c]
+    ));
+  }
+
+  function hasConflict(date, time, ignoreId) {
+    return loadEntries().some(e =>
+      e.date === date && e.time === time && e.status !== 'Cancelled' && e.id !== ignoreId
+    );
+  }
+
   // ─── Save a new booking ──────────────────────────────────────────────────────
   function saveEntry() {
-    // TODO: Read values from form fields (name, email, service, bdate, btime)
+    const name = document.getElementById('name').value.trim();
+    const email = document.getElementById('email').value.trim();
+    const service = document.getElementById('service').value.trim();
+    const date = document.getElementById('bdate').value;
+    const time = document.getElementById('btime').value;
 
-    // TODO: Validate — alert and return early if any required field is empty
+    if (!name || !email || !service || !date || !time) {
+      alert('Please fill in all fields.');
+      return;
+    }
 
-    // TODO: Check for conflicts — if another booking exists with same date + time, alert and return
-    // const entries = loadEntries();
-    // const conflict = entries.find(e => e.date === date && e.time === time && e.status !== 'Cancelled');
+    if (hasConflict(date, time)) {
+      alert('Conflict! A booking already exists for ' + date + ' at ' + time + '.');
+      return;
+    }
 
-    // TODO: Create entry object with all fields + id + timestamp + status: 'Pending'
-    // const entry = { id: Date.now(), name, email, service, date: bdate, time: btime, status: 'Pending' };
+    const entry = { id: Date.now(), name, email, service, date, time, status: 'Pending' };
 
-    // TODO: Push entry, save, clear form, re-render
+    const entries = loadEntries();
+    entries.push(entry);
+    saveEntries(entries);
+
+    document.getElementById('name').value = '';
+    document.getElementById('email').value = '';
+    document.getElementById('service').value = '';
+    document.getElementById('conflict-warn').style.display = 'none';
 
     renderList();
   }
@@ -145,44 +179,83 @@
     const entries = loadEntries();
     const container = document.getElementById('entries-list');
 
-    // TODO: If entries array is empty, show the empty state paragraph
+    if (entries.length === 0) {
+      container.innerHTML = '<p class="empty-state">No entries yet &mdash; add one above.</p>';
+      updateStats(entries);
+      return;
+    }
 
-    // TODO: Map each entry to an HTML card or table row
-    //       Each row must show: Name, Email, Service, Date, Time, Status badge
-    //       Include Confirm button, Cancel button, and Delete button
+    const sorted = entries.slice().sort((a, b) =>
+      (a.date + a.time).localeCompare(b.date + b.time)
+    );
 
-    container.innerHTML = '<p class="empty-state">No entries yet &mdash; add one above.</p>';
-    // TODO: Replace the line above with your rendered HTML
+    const rows = sorted.map(e => `
+      <tr>
+        <td>${escapeHtml(e.name)}<br><span style="color:#9CA3AF;font-size:12px;">${escapeHtml(e.email)}</span></td>
+        <td>${escapeHtml(e.service)}</td>
+        <td>${escapeHtml(e.date)}<br>${escapeHtml(e.time)}</td>
+        <td><span class="badge b-${e.status}">${e.status}</span></td>
+        <td>
+          ${e.status !== 'Confirmed' ? `<button class="row-btn" onclick="updateStatus(${e.id},'Confirmed')">Confirm</button>` : ''}
+          ${e.status !== 'Cancelled' ? `<button class="row-btn" onclick="updateStatus(${e.id},'Cancelled')">Cancel</button>` : ''}
+          <button class="row-btn" onclick="copyConfirmation(${e.id})">Copy text</button>
+          <button class="row-btn del" onclick="deleteEntry(${e.id})">Delete</button>
+        </td>
+      </tr>`).join('');
+
+    container.innerHTML = `
+      <table>
+        <thead><tr><th>Client</th><th>Service</th><th>When</th><th>Status</th><th></th></tr></thead>
+        <tbody>${rows}</tbody>
+      </table>`;
 
     updateStats(entries);
   }
 
   // ─── Update status (Confirmed / Cancelled) ───────────────────────────────────
   function updateStatus(id, status) {
-    // TODO: Find the entry by id, update its status, save back, re-render
+    const entries = loadEntries();
+    const entry = entries.find(e => e.id === id);
+    if (!entry) return;
+    entry.status = status;
+    saveEntries(entries);
+    renderList();
   }
 
   // ─── Delete a booking ────────────────────────────────────────────────────────
   function deleteEntry(id) {
-    // TODO: Filter out the entry and save remaining, then re-render
+    if (!confirm('Delete this booking?')) return;
+    saveEntries(loadEntries().filter(e => e.id !== id));
+    renderList();
   }
 
   // ─── Copy confirmation text to clipboard ─────────────────────────────────────
   function copyConfirmation(id) {
-    // TODO: Build a confirmation text string for the booking and copy it to clipboard
-    // e.g. "Hi [Name], your [Service] booking on [Date] at [Time] is confirmed!"
-    // Use: navigator.clipboard.writeText(text)
+    const e = loadEntries().find(x => x.id === id);
+    if (!e) return;
+    const text = `Hi ${e.name}, your ${e.service} booking on ${e.date} at ${e.time} is confirmed. See you then!`;
+    navigator.clipboard.writeText(text)
+      .then(() => alert('Confirmation text copied to clipboard:\n\n' + text))
+      .catch(() => prompt('Copy this text:', text));
   }
 
   // ─── Update summary stats ────────────────────────────────────────────────────
   function updateStats(entries) {
     document.getElementById('total-count').textContent = entries.length;
-    // TODO: Count entries by status and update the stat boxes
+    document.getElementById('pending-count').textContent = entries.filter(e => e.status === 'Pending').length;
+    document.getElementById('confirmed-count').textContent = entries.filter(e => e.status === 'Confirmed').length;
+    document.getElementById('cancelled-count').textContent = entries.filter(e => e.status === 'Cancelled').length;
   }
 
-  // ─── Conflict check on date/time change ──────────────────────────────────────
-  // TODO: Add event listeners to bdate and btime inputs
-  //       Show/hide the conflict-warn div based on whether a conflict exists
+  // ─── Live conflict check on date/time change ─────────────────────────────────
+  function checkConflictLive() {
+    const date = document.getElementById('bdate').value;
+    const time = document.getElementById('btime').value;
+    const warn = document.getElementById('conflict-warn');
+    warn.style.display = (date && time && hasConflict(date, time)) ? 'block' : 'none';
+  }
+  document.getElementById('bdate').addEventListener('change', checkConflictLive);
+  document.getElementById('btime').addEventListener('change', checkConflictLive);
 
   // ─── Initialise ──────────────────────────────────────────────────────────────
   document.getElementById('bdate').value = new Date().toISOString().split('T')[0];
