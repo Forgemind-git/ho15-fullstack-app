@@ -2,13 +2,20 @@
 
 > Hands-on portfolio project · **Week 6** · **Solo** · module M17. Part of the **ForgeMind AI — AI Productivity Essentials** course.
 
+> **Built with your Claude.ai subscription — no API key, no server, no terminal required.**
+> Each sample is a full CRUD app that runs entirely in the browser using localStorage and
+> deploys free to GitHub Pages. Open any sample's `index.html` and it just works.
+
 ## Goal
 
-**Done when:** Frontend + backend + a database, deployed live
+**Done when:** Your app runs in the browser (saving data in localStorage) and is live at a
+free GitHub Pages URL.
 
 ## What to ship
 
-Full source (frontend + backend) + README with the live URL + the data it stores.
+Your `index.html` + a README naming the problem it solves and the data it stores + the live
+GitHub Pages URL. (A full server + database version is shown as optional advanced reference in
+each sample's `backend-reference/` folder — not required.)
 
 ## Pick a problem statement
 
@@ -26,9 +33,13 @@ Choose **one** of these real use-cases — or bring your own (get it approved fi
 
 ## How to use this repo
 
-1. Click **Use this template** to create your own copy.
-2. Build your chosen project in your copy.
-3. Replace this section of the README with: what you built, the problem it solves, and how to run it.
+1. Open the landing page (`index.html`) to browse the five samples.
+2. Pick one sample folder and open its `README.md`.
+3. Double-click that sample's `index.html` — it opens in your browser and **works right away**.
+4. Use the **example prompt** in the sample README to rebuild the app with your Claude.ai
+   subscription, then tweak it for your own use case. No API key needed.
+5. Save Claude's code as `index.html`, push it to GitHub, and enable **Settings → Pages** for a
+   free live link.
 
 ---
 
