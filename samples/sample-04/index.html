@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>URL Shortener & Bookmarks — HO15</title>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif; background:#F8F9FA; color:#1a1a2e; min-height:100vh; }
+:root { --color:#BE185D; }
+.banner { background:#FEF3C7; border-left:4px solid #D97706; padding:10px 20px; font-size:13px; color:#92400E; text-align:center; }
+header { background:var(--color); color:#fff; padding:24px 32px; }
+header h1 { font-size:22px; font-weight:800; margin-bottom:4px; }
+header p { font-size:14px; opacity:.85; }
+.container { max-width:900px; margin:0 auto; padding:24px 16px; }
+.card { background:#fff; border-radius:10px; box-shadow:0 1px 6px rgba(0,0,0,.08); padding:24px; margin-bottom:20px; }
+.card h2 { font-size:16px; font-weight:700; margin-bottom:16px; color:var(--color); }
+.form-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+@media(max-width:600px){ .form-grid{ grid-template-columns:1fr; } }
+label { font-size:13px; font-weight:600; color:#374151; display:block; margin-bottom:4px; }
+input { width:100%; padding:9px 12px; border:1px solid #D1D5DB; border-radius:6px; font-size:14px; outline:none; transition:border .2s; }
+input:focus { border-color:var(--color); }
+.btn { padding:10px 20px; background:var(--color); color:#fff; border:none; border-radius:6px; font-size:14px; font-weight:600; cursor:pointer; }
+.btn:hover { opacity:.88; }
+.note { font-size:12px; color:#9CA3AF; margin-top:4px; }
+table { width:100%; border-collapse:collapse; }
+th { text-align:left; font-size:12px; font-weight:700; color:#9CA3AF; text-transform:uppercase; letter-spacing:.05em; padding:8px 10px; border-bottom:2px solid #F3F4F6; }
+td { padding:11px 10px; font-size:14px; border-bottom:1px solid #F9FAFB; vertical-align:middle; word-break:break-all; }
+tr:last-child td { border-bottom:none; }
+.short-code { font-family:monospace; background:#F3F4F6; padding:3px 8px; border-radius:4px; font-size:13px; color:var(--color); font-weight:700; }
+.tag { display:inline-block; padding:2px 8px; background:#EDE9FE; color:#6D28D9; border-radius:10px; font-size:11px; font-weight:600; margin-right:3px; }
+.action-btn { border:none; border-radius:5px; padding:5px 10px; font-size:12px; font-weight:600; cursor:pointer; margin-right:3px; }
+.copy-btn { background:#DBEAFE; color:#1D4ED8; }
+.open-btn { background:#D1FAE5; color:#065F46; }
+.del-btn { background:#FEE2E2; color:#991B1B; }
+.action-btn:hover { opacity:.8; }
+.click-count { display:inline-flex; align-items:center; gap:4px; font-size:13px; color:#6B7280; }
+.click-count strong { color:var(--color); }
+.stats-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(140px,1fr)); gap:12px; }
+.stat-card { background:#F9FAFB; border-radius:8px; padding:14px 16px; }
+.stat-label { font-size:12px; color:#9CA3AF; font-weight:600; text-transform:uppercase; }
+.stat-val { font-size:24px; font-weight:800; color:var(--color); margin-top:4px; }
+.empty { text-align:center; padding:32px; color:#9CA3AF; font-size:14px; }
+.toast { position:fixed; bottom:24px; left:50%; transform:translateX(-50%); background:#1a1a2e; color:#fff; padding:10px 20px; border-radius:8px; font-size:14px; font-weight:600; z-index:999; opacity:0; transition:opacity .3s; pointer-events:none; }
+.toast.show { opacity:1; }
+.url-cell { max-width:220px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+</style>
+</head>
+<body>
+<div class="banner">📁 Data saved in your browser (localStorage) — clears if you clear browser data</div>
+<div class="toast" id="toast">Copied!</div>
+<header>
+  <h1>🔗 URL Shortener & Bookmarks</h1>
+  <p>Save and organise your bookmarks with short codes and tags — all stored locally in your browser</p>
+</header>
+<div class="container">
+  <!-- Add URL Form -->
+  <div class="card">
+    <h2>Save URL</h2>
+    <div class="form-grid">
+      <div style="grid-column:1/-1">
+        <label>Original URL</label>
+        <input type="url" id="url" placeholder="https://example.com/very/long/url">
+      </div>
+      <div>
+        <label>Custom Alias <span style="font-weight:400;color:#9CA3AF">(optional)</span></label>
+        <input type="text" id="alias" placeholder="my-link" pattern="[a-zA-Z0-9\-]+">
+        <div class="note">Letters, numbers and hyphens only. Auto-generated if blank.</div>
+      </div>
+      <div>
+        <label>Tags <span style="font-weight:400;color:#9CA3AF">(optional)</span></label>
+        <input type="text" id="tags" placeholder="work, design, reference">
+        <div class="note">Comma-separated list of tags.</div>
+      </div>
+    </div>
+    <br>
+    <button class="btn" onclick="saveURL()">Save URL</button>
+  </div>
+
+  <!-- Bookmarks List -->
+  <div class="card">
+    <h2>All Bookmarks</h2>
+    <div id="list-wrap"></div>
+  </div>
+
+  <!-- Stats -->
+  <div class="card">
+    <h2>Summary</h2>
+    <div class="stats-grid" id="stats"></div>
+  </div>
+</div>
+
+<script>
+const KEY = 'ho15_urls';
+function load() { return JSON.parse(localStorage.getItem(KEY) || '[]'); }
+function save(d) { localStorage.setItem(KEY, JSON.stringify(d)); }
+
+function randCode() {
+  const chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
+  return Array.from({length:6}, () => chars[Math.floor(Math.random()*chars.length)]).join('');
+}
+
+function saveURL() {
+  let url = document.getElementById('url').value.trim();
+  let alias = document.getElementById('alias').value.trim();
+  const tags = document.getElementById('tags').value.trim()
+    .split(',').map(t=>t.trim()).filter(Boolean);
+  if (!url) { alert('Please enter a URL.'); return; }
+  if (!url.startsWith('http')) url = 'https://' + url;
+  if (alias && !/^[a-zA-Z0-9\-]+$/.test(alias)) { alert('Alias can only contain letters, numbers and hyphens.'); return; }
+  const data = load();
+  if (alias && data.find(d => d.code === alias)) { alert('That alias is already taken. Choose another or leave blank.'); return; }
+  const code = alias || randCode();
+  data.unshift({ id: Date.now(), url, code, tags, clicks: 0, date: new Date().toLocaleDateString() });
+  save(data);
+  document.getElementById('url').value = '';
+  document.getElementById('alias').value = '';
+  document.getElementById('tags').value = '';
+  render();
+}
+
+function copyLink(code) {
+  const link = `${location.origin}${location.pathname}#${code}`;
+  navigator.clipboard.writeText(link).then(() => showToast('Short link copied!')).catch(() => {
+    prompt('Copy this link:', link);
+  });
+}
+
+function openURL(id) {
+  const data = load();
+  const idx = data.findIndex(d => d.id === id);
+  if (idx >= 0) { data[idx].clicks++; save(data); render(); window.open(data[idx].url, '_blank'); }
+}
+
+function deleteURL(id) {
+  if (!confirm('Delete this bookmark?')) return;
+  save(load().filter(d => d.id !== id));
+  render();
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2000);
+}
+
+function render() {
+  const data = load();
+  const wrap = document.getElementById('list-wrap');
+  if (data.length === 0) {
+    wrap.innerHTML = '<div class="empty">No bookmarks yet. Save a URL above!</div>';
+  } else {
+    wrap.innerHTML = `<table>
+      <thead><tr><th>Short Code</th><th>URL</th><th>Tags</th><th>Clicks</th><th>Actions</th></tr></thead>
+      <tbody>${data.map(d => `
+        <tr>
+          <td><span class="short-code">${d.code}</span></td>
+          <td class="url-cell" title="${d.url}">${d.url}</td>
+          <td>${d.tags.map(t=>`<span class="tag">${t}</span>`).join('') || '<span style="color:#ccc">—</span>'}</td>
+          <td><span class="click-count">👆 <strong>${d.clicks}</strong></span></td>
+          <td>
+            <button class="action-btn copy-btn" onclick="copyLink('${d.code}')">📋 Copy</button>
+            <button class="action-btn open-btn" onclick="openURL(${d.id})">↗ Open</button>
+            <button class="action-btn del-btn" onclick="deleteURL(${d.id})">🗑</button>
+          </td>
+        </tr>`).join('')}
+      </tbody>
+    </table>`;
+  }
+
+  const totalClicks = data.reduce((s,d) => s+d.clicks, 0);
+  const allTags = [...new Set(data.flatMap(d=>d.tags))].length;
+  document.getElementById('stats').innerHTML = `
+    <div class="stat-card"><div class="stat-label">Saved URLs</div><div class="stat-val">${data.length}</div></div>
+    <div class="stat-card"><div class="stat-label">Total Clicks</div><div class="stat-val">${totalClicks}</div></div>
+    <div class="stat-card"><div class="stat-label">Unique Tags</div><div class="stat-val">${allTags}</div></div>`;
+}
+
+render();
+</script>
+</body>
+</html>

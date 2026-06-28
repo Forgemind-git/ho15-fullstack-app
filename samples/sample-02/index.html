@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Booking & Availability App — HO15</title>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif; background:#F8F9FA; color:#1a1a2e; min-height:100vh; }
+:root { --color:#BE185D; }
+.banner { background:#FEF3C7; border-left:4px solid #D97706; padding:10px 20px; font-size:13px; color:#92400E; text-align:center; }
+header { background:var(--color); color:#fff; padding:24px 32px; }
+header h1 { font-size:22px; font-weight:800; margin-bottom:4px; }
+header p { font-size:14px; opacity:.85; }
+.container { max-width:900px; margin:0 auto; padding:24px 16px; }
+.card { background:#fff; border-radius:10px; box-shadow:0 1px 6px rgba(0,0,0,.08); padding:24px; margin-bottom:20px; }
+.card h2 { font-size:16px; font-weight:700; margin-bottom:16px; color:var(--color); }
+.form-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+@media(max-width:600px){ .form-grid{ grid-template-columns:1fr; } }
+label { font-size:13px; font-weight:600; color:#374151; display:block; margin-bottom:4px; }
+input, select { width:100%; padding:9px 12px; border:1px solid #D1D5DB; border-radius:6px; font-size:14px; outline:none; transition:border .2s; }
+input:focus, select:focus { border-color:var(--color); }
+.btn { padding:10px 20px; background:var(--color); color:#fff; border:none; border-radius:6px; font-size:14px; font-weight:600; cursor:pointer; }
+.btn:hover { opacity:.88; }
+.conflict-warn { background:#FEF2F2; border:1px solid #FECACA; color:#DC2626; padding:12px 16px; border-radius:6px; font-size:14px; margin-top:12px; display:none; }
+table { width:100%; border-collapse:collapse; }
+th { text-align:left; font-size:12px; font-weight:700; color:#9CA3AF; text-transform:uppercase; letter-spacing:.05em; padding:8px 10px; border-bottom:2px solid #F3F4F6; }
+td { padding:11px 10px; font-size:14px; border-bottom:1px solid #F9FAFB; vertical-align:middle; }
+tr:last-child td { border-bottom:none; }
+.status-badge { display:inline-block; padding:3px 10px; border-radius:12px; font-size:12px; font-weight:700; }
+.status-pending { background:#FEF3C7; color:#D97706; }
+.status-confirmed { background:#D1FAE5; color:#065F46; }
+.status-cancelled { background:#FEE2E2; color:#991B1B; }
+.action-btn { border:none; border-radius:5px; padding:4px 10px; font-size:12px; font-weight:600; cursor:pointer; margin-right:4px; }
+.confirm-btn { background:#D1FAE5; color:#065F46; }
+.cancel-btn { background:#FEE2E2; color:#991B1B; }
+.del-btn { background:#F3F4F6; color:#6B7280; }
+.action-btn:hover { opacity:.8; }
+.stats-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(140px,1fr)); gap:12px; }
+.stat-card { background:#F9FAFB; border-radius:8px; padding:14px 16px; }
+.stat-label { font-size:12px; color:#9CA3AF; font-weight:600; text-transform:uppercase; }
+.stat-val { font-size:24px; font-weight:800; color:var(--color); margin-top:4px; }
+.empty { text-align:center; padding:32px; color:#9CA3AF; font-size:14px; }
+</style>
+</head>
+<body>
+<div class="banner">📁 Data saved in your browser (localStorage) — clears if you clear browser data</div>
+<header>
+  <h1>📅 Booking & Availability App</h1>
+  <p>Manage service bookings with conflict detection — all data stored locally in your browser</p>
+</header>
+<div class="container">
+  <!-- Booking Form -->
+  <div class="card">
+    <h2>Submit Booking</h2>
+    <div class="form-grid">
+      <div>
+        <label>Client Name</label>
+        <input type="text" id="name" placeholder="Full name">
+      </div>
+      <div>
+        <label>Email</label>
+        <input type="email" id="email" placeholder="email@example.com">
+      </div>
+      <div>
+        <label>Service</label>
+        <select id="service">
+          <option>Consultation</option>
+          <option>Hair Cut</option>
+          <option>Massage</option>
+          <option>Personal Training</option>
+          <option>Photography</option>
+          <option>Other</option>
+        </select>
+      </div>
+      <div>
+        <label>Date</label>
+        <input type="date" id="bdate">
+      </div>
+      <div>
+        <label>Time</label>
+        <input type="time" id="btime">
+      </div>
+    </div>
+    <div class="conflict-warn" id="warn">⚠️ <strong>Conflict detected!</strong> A booking already exists for this date and time. Please choose a different slot.</div>
+    <br>
+    <button class="btn" onclick="submitBooking()">Submit Booking</button>
+  </div>
+
+  <!-- All Bookings -->
+  <div class="card">
+    <h2>All Bookings</h2>
+    <div id="list-wrap"></div>
+  </div>
+
+  <!-- Summary -->
+  <div class="card">
+    <h2>Summary</h2>
+    <div class="stats-grid" id="stats"></div>
+  </div>
+</div>
+
+<script>
+const KEY = 'ho15_bookings';
+function load() { return JSON.parse(localStorage.getItem(KEY) || '[]'); }
+function save(d) { localStorage.setItem(KEY, JSON.stringify(d)); }
+
+document.getElementById('bdate').value = new Date().toISOString().split('T')[0];
+document.getElementById('btime').value = '10:00';
+
+document.getElementById('bdate').addEventListener('change', checkConflict);
+document.getElementById('btime').addEventListener('change', checkConflict);
+
+function checkConflict() {
+  const date = document.getElementById('bdate').value;
+  const time = document.getElementById('btime').value;
+  const warn = document.getElementById('warn');
+  if (!date || !time) { warn.style.display='none'; return; }
+  const conflict = load().find(b => b.date === date && b.time === time && b.status !== 'cancelled');
+  warn.style.display = conflict ? 'block' : 'none';
+}
+
+function submitBooking() {
+  const name = document.getElementById('name').value.trim();
+  const email = document.getElementById('email').value.trim();
+  const service = document.getElementById('service').value;
+  const date = document.getElementById('bdate').value;
+  const time = document.getElementById('btime').value;
+  if (!name || !email || !date || !time) { alert('Please fill all fields.'); return; }
+  const data = load();
+  const conflict = data.find(b => b.date === date && b.time === time && b.status !== 'cancelled');
+  if (conflict) { alert('⚠️ This time slot is already booked. Please choose a different date/time.'); return; }
+  data.unshift({ id: Date.now(), name, email, service, date, time, status: 'pending' });
+  save(data);
+  document.getElementById('name').value = '';
+  document.getElementById('email').value = '';
+  document.getElementById('warn').style.display = 'none';
+  render();
+  alert('✅ Booking submitted successfully!');
+}
+
+function updateStatus(id, status) {
+  const data = load();
+  const idx = data.findIndex(b => b.id === id);
+  if (idx >= 0) { data[idx].status = status; save(data); render(); }
+}
+
+function deleteBooking(id) {
+  if (!confirm('Delete this booking?')) return;
+  save(load().filter(b => b.id !== id));
+  render();
+}
+
+function fmt12(t) {
+  if (!t) return '';
+  const [h,m] = t.split(':');
+  const hr = parseInt(h);
+  return `${hr > 12 ? hr-12 : hr || 12}:${m} ${hr >= 12 ? 'PM' : 'AM'}`;
+}
+
+function render() {
+  const data = load();
+  const wrap = document.getElementById('list-wrap');
+  if (data.length === 0) {
+    wrap.innerHTML = '<div class="empty">No bookings yet. Submit one above!</div>';
+  } else {
+    wrap.innerHTML = `<table>
+      <thead><tr><th>Name</th><th>Service</th><th>Date</th><th>Time</th><th>Status</th><th>Actions</th></tr></thead>
+      <tbody>${data.map(b => `
+        <tr>
+          <td><strong>${b.name}</strong><br><small style="color:#9CA3AF">${b.email}</small></td>
+          <td>${b.service}</td>
+          <td>${b.date}</td>
+          <td>${fmt12(b.time)}</td>
+          <td><span class="status-badge status-${b.status}">${b.status}</span></td>
+          <td>
+            ${b.status !== 'confirmed' && b.status !== 'cancelled' ? `<button class="action-btn confirm-btn" onclick="updateStatus(${b.id},'confirmed')">✓ Confirm</button>` : ''}
+            ${b.status !== 'cancelled' ? `<button class="action-btn cancel-btn" onclick="updateStatus(${b.id},'cancelled')">✕ Cancel</button>` : ''}
+            <button class="action-btn del-btn" onclick="deleteBooking(${b.id})">🗑</button>
+          </td>
+        </tr>`).join('')}
+      </tbody>
+    </table>`;
+  }
+
+  const counts = { pending:0, confirmed:0, cancelled:0 };
+  data.forEach(b => counts[b.status]++);
+  document.getElementById('stats').innerHTML = [
+    ['Total','#BE185D',data.length],
+    ['Pending','#D97706',counts.pending],
+    ['Confirmed','#065F46',counts.confirmed],
+    ['Cancelled','#991B1B',counts.cancelled],
+  ].map(([l,c,v]) => `<div class="stat-card"><div class="stat-label">${l}</div><div class="stat-val" style="color:${c}">${v}</div></div>`).join('');
+}
+
+render();
+</script>
+</body>
+</html>
