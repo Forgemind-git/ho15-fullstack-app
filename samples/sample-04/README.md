@@ -1,50 +1,37 @@
-# Sample 04 — URL Shortener
+# HO15 Sample 4 — URL Shortener & Bookmark Manager
 
-Shorten long URLs into compact shareable links and track how many times each one is clicked.
+## Your task
 
-## What it does
+You share long ugly links and lose track of your bookmarks. Build and deploy a URL shortener / bookmark manager.
 
-- Paste any long URL and get a short link (6-character random code)
-- Redirects visitors to the original URL and increments the click count
-- Automatically prepends https:// if protocol is missing
-- Lists all your links with click counts and creation dates
-- Copy short link to clipboard with one click
+## What you will build
 
-## Data stored
+A full CRUD app that runs in the browser using localStorage — no server or database needed.
+Deploy free to GitHub Pages.
 
-| Field | Type | Description |
-|-------|------|-------------|
-| id | INTEGER | Auto-generated primary key |
-| original_url | TEXT | The full original URL |
-| short_code | TEXT | Unique 6-character code |
-| click_count | INTEGER | Number of times the link was visited |
-| created_at | DATETIME | When the link was created |
+## Features to implement
 
-## API Routes
+**Fields:**
+- Original URL
+- Custom alias (optional)
+- Tags
 
-| Method | Path | Description |
-|--------|------|-------------|
-| POST | /api/shorten | Shorten a URL, returns short_url |
-| GET | /:code | Redirect to original URL (increments click count) |
-| GET | /api/links | List all short links |
+**Operations:**
+- Save with short code
+- Copy short link
+- List all bookmarks
+- Delete entry
+- Filter by tag
+- Track click count (localStorage)
 
-## Setup
+## How to build it
 
-```bash
-npm install
-cp .env.example .env
-npm start
-```
-
-Open http://localhost:3000
-
-## Docker
-
-```bash
-docker build -t url-shortener .
-docker run -p 3000:3000 url-shortener
-```
+1. Open index.html in your browser — you should see the skeleton layout
+2. Read the TODO comments in the HTML and JavaScript
+3. Fill in: the form fields, the localStorage functions, the list rendering
+4. Test all operations (save, copy, list, delete, filter, click tracking)
+5. Push to GitHub and enable Pages for a live link
 
 ## Live URL
 
-> **Deployed at:** https://your-app-url.com  ← replace after deployment
+> **Deployed at:** _(paste your GitHub Pages URL here after deploying)_

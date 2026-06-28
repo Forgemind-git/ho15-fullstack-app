@@ -1,181 +1,186 @@
+<!-- TODO: Fill in the form fields, implement the functions in the script block, and style any remaining sections -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Form Submission Collector — HO15</title>
-<style>
-* { margin:0; padding:0; box-sizing:border-box; }
-body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif; background:#F8F9FA; color:#1a1a2e; min-height:100vh; }
-:root { --color:#BE185D; }
-.banner { background:#FEF3C7; border-left:4px solid #D97706; padding:10px 20px; font-size:13px; color:#92400E; text-align:center; }
-header { background:var(--color); color:#fff; padding:24px 32px; }
-header h1 { font-size:22px; font-weight:800; margin-bottom:4px; }
-header p { font-size:14px; opacity:.85; }
-.container { max-width:900px; margin:0 auto; padding:24px 16px; }
-.card { background:#fff; border-radius:10px; box-shadow:0 1px 6px rgba(0,0,0,.08); padding:24px; margin-bottom:20px; }
-.card h2 { font-size:16px; font-weight:700; margin-bottom:16px; color:var(--color); }
-.form-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
-@media(max-width:600px){ .form-grid{ grid-template-columns:1fr; } }
-label { font-size:13px; font-weight:600; color:#374151; display:block; margin-bottom:4px; }
-input, textarea, select { width:100%; padding:9px 12px; border:1px solid #D1D5DB; border-radius:6px; font-size:14px; outline:none; transition:border .2s; }
-input:focus, textarea:focus { border-color:var(--color); }
-textarea { resize:vertical; min-height:80px; }
-.btn { padding:10px 20px; background:var(--color); color:#fff; border:none; border-radius:6px; font-size:14px; font-weight:600; cursor:pointer; }
-.btn:hover { opacity:.88; }
-.search-bar { display:flex; gap:8px; margin-bottom:16px; }
-.search-bar input { flex:1; }
-.stars { color:#F59E0B; font-size:16px; letter-spacing:2px; }
-.del-btn { background:none; border:none; color:#EF4444; cursor:pointer; font-size:16px; padding:2px 6px; }
-.del-btn:hover { background:#FEF2F2; border-radius:4px; }
-.sub-card { border:1px solid #F3F4F6; border-radius:8px; padding:14px 16px; margin-bottom:12px; }
-.sub-card:last-child { margin-bottom:0; }
-.sub-header { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:8px; }
-.sub-name { font-weight:700; font-size:14px; }
-.sub-email { font-size:12px; color:#9CA3AF; margin-top:2px; }
-.sub-msg { font-size:14px; color:#374151; line-height:1.6; margin-top:6px; }
-.sub-date { font-size:12px; color:#9CA3AF; margin-top:6px; }
-.stats-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(140px,1fr)); gap:12px; }
-.stat-card { background:#F9FAFB; border-radius:8px; padding:14px 16px; }
-.stat-label { font-size:12px; color:#9CA3AF; font-weight:600; text-transform:uppercase; }
-.stat-val { font-size:24px; font-weight:800; color:var(--color); margin-top:4px; }
-.empty { text-align:center; padding:32px; color:#9CA3AF; font-size:14px; }
-.highlight { background:#FEF9C3; }
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Form Collector — HO15</title>
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif; background:#F8F9FA; color:#1a1a2e; min-height:100vh; }
+    :root { --color:#BE185D; }
+    .todo-bar { background:#FEF3C7; border-left:4px solid #D97706; padding:10px 20px; font-size:13px; color:#92400E; }
+    header { background:var(--color); color:#fff; padding:24px 32px; }
+    header h1 { font-size:22px; font-weight:800; margin-bottom:4px; }
+    header p { font-size:14px; opacity:.85; }
+    .container { max-width:900px; margin:0 auto; padding:24px 16px; }
+    .card { background:#fff; border-radius:10px; box-shadow:0 1px 6px rgba(0,0,0,.08); padding:24px; margin-bottom:20px; }
+    .card h2 { font-size:16px; font-weight:700; margin-bottom:16px; color:var(--color); }
+    .form-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+    @media(max-width:600px){ .form-grid{ grid-template-columns:1fr; } }
+    label { font-size:13px; font-weight:600; color:#374151; display:block; margin-bottom:4px; }
+    input, textarea, select { width:100%; padding:9px 12px; border:1px solid #D1D5DB; border-radius:6px; font-size:14px; outline:none; }
+    input:focus, textarea:focus, select:focus { border-color:var(--color); }
+    textarea { resize:vertical; min-height:80px; }
+    .btn { padding:10px 20px; background:var(--color); color:#fff; border:none; border-radius:6px; font-size:14px; font-weight:600; cursor:pointer; margin-top:12px; }
+    .stats-bar { display:flex; gap:12px; flex-wrap:wrap; }
+    .stat-box { background:#F9FAFB; border-radius:8px; padding:12px 16px; min-width:120px; }
+    .stat-label { font-size:11px; color:#9CA3AF; font-weight:700; text-transform:uppercase; letter-spacing:.04em; }
+    .stat-val { font-size:20px; font-weight:800; color:var(--color); margin-top:2px; }
+    .empty-state { text-align:center; padding:32px; color:#9CA3AF; font-size:14px; }
+  </style>
 </head>
 <body>
-<div class="banner">📁 Data saved in your browser (localStorage) — clears if you clear browser data</div>
-<header>
-  <h1>📋 Form Submission Collector</h1>
-  <p>Collect and manage form submissions with ratings — all data stored locally in your browser</p>
-</header>
-<div class="container">
-  <!-- Submit Form -->
-  <div class="card">
-    <h2>Submit Form</h2>
-    <div class="form-grid">
-      <div>
-        <label>Name</label>
-        <input type="text" id="name" placeholder="Your name">
-      </div>
-      <div>
-        <label>Email</label>
-        <input type="email" id="email" placeholder="you@example.com">
-      </div>
-      <div style="grid-column:1/-1">
-        <label>Message</label>
-        <textarea id="message" placeholder="Enter your message or feedback…"></textarea>
-      </div>
-      <div>
-        <label>Rating (1–5)</label>
-        <select id="rating">
-          <option value="5">⭐⭐⭐⭐⭐ — Excellent (5)</option>
-          <option value="4">⭐⭐⭐⭐ — Good (4)</option>
-          <option value="3" selected>⭐⭐⭐ — Average (3)</option>
-          <option value="2">⭐⭐ — Poor (2)</option>
-          <option value="1">⭐ — Very Poor (1)</option>
-        </select>
-      </div>
-    </div>
-    <br>
-    <button class="btn" onclick="submitForm()">Submit Form</button>
+
+  <div class="todo-bar">
+    Starter skeleton — open README.md for instructions, then fill in the TODOs below.
   </div>
 
-  <!-- Submissions -->
-  <div class="card">
-    <h2>All Submissions</h2>
-    <div class="search-bar">
-      <input type="text" id="search" placeholder="🔍 Search by name, email, or message…" oninput="render()">
-    </div>
-    <div id="list-wrap"></div>
-  </div>
+  <header>
+    <h1>Form Collector</h1>
+    <p>Collect feedback and sign-ups — all data stored locally in your browser</p>
+  </header>
 
-  <!-- Stats -->
-  <div class="card">
-    <h2>Summary</h2>
-    <div class="stats-grid" id="stats"></div>
-  </div>
-</div>
+  <div class="container">
+
+    <!-- FORM SECTION -->
+    <div class="card">
+      <h2>Submit Form</h2>
+      <div class="form-grid">
+
+        <!-- TODO: Add a label + input for Name -->
+        <div>
+          <label>Name</label>
+          <input type="text" id="name" placeholder="Your name">
+        </div>
+
+        <!-- TODO: Add a label + input for Email -->
+        <div>
+          <label>Email</label>
+          <input type="email" id="email" placeholder="you@example.com">
+        </div>
+
+        <!-- TODO: Add a label + textarea for Message -->
+        <div style="grid-column:1/-1">
+          <label>Message</label>
+          <textarea id="message" placeholder="Your message or feedback..."></textarea>
+        </div>
+
+        <!-- TODO: Add a label + select for Rating (1-5) -->
+        <div>
+          <label>Rating (1-5)</label>
+          <select id="rating">
+            <option value="">-- select rating --</option>
+            <!-- TODO: Add options: 1 through 5 -->
+          </select>
+        </div>
+
+      </div>
+      <button class="btn" onclick="saveEntry()">Submit Form</button>
+    </div>
+
+    <!-- LIST SECTION -->
+    <div class="card">
+      <h2>All Submissions</h2>
+
+      <!-- TODO: Add a search input that filters entries as the user types -->
+      <div style="margin-bottom:16px;">
+        <input type="text" id="search" placeholder="Search by name, email, or message..." oninput="renderList()">
+      </div>
+
+      <div id="entries-list">
+        <p class="empty-state">No entries yet &mdash; add one above.</p>
+      </div>
+    </div>
+
+    <!-- STATS SECTION -->
+    <div class="card">
+      <h2>Summary</h2>
+      <div class="stats-bar">
+        <div class="stat-box">
+          <div class="stat-label">Total Submissions</div>
+          <div class="stat-val" id="total-count">0</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-label">Avg Rating</div>
+          <div class="stat-val" id="avg-rating">-</div>
+        </div>
+        <!-- TODO: Add more stat boxes if desired (e.g. count per rating) -->
+      </div>
+    </div>
+
+  </div><!-- /container -->
 
 <script>
-const KEY = 'ho15_forms';
-function load() { return JSON.parse(localStorage.getItem(KEY) || '[]'); }
-function save(d) { localStorage.setItem(KEY, JSON.stringify(d)); }
+  // ─── Data storage ────────────────────────────────────────────────────────────
+  const STORAGE_KEY = 'ho15-form-collector';
 
-function stars(n) { return '⭐'.repeat(Number(n)); }
-
-function submitForm() {
-  const name = document.getElementById('name').value.trim();
-  const email = document.getElementById('email').value.trim();
-  const message = document.getElementById('message').value.trim();
-  const rating = document.getElementById('rating').value;
-  if (!name || !email || !message) { alert('Please fill all fields.'); return; }
-  const data = load();
-  data.unshift({ id: Date.now(), name, email, message, rating: parseInt(rating), date: new Date().toLocaleString() });
-  save(data);
-  document.getElementById('name').value = '';
-  document.getElementById('email').value = '';
-  document.getElementById('message').value = '';
-  document.getElementById('rating').value = '3';
-  render();
-  alert('✅ Form submitted! Thank you.');
-}
-
-function deleteEntry(id) {
-  if (!confirm('Delete this submission?')) return;
-  save(load().filter(e => e.id !== id));
-  render();
-}
-
-function highlight(text, query) {
-  if (!query) return text;
-  const re = new RegExp(`(${query.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')})`, 'gi');
-  return text.replace(re, '<mark class="highlight">$1</mark>');
-}
-
-function render() {
-  const data = load();
-  const q = document.getElementById('search').value.trim().toLowerCase();
-  const filtered = q ? data.filter(e =>
-    e.name.toLowerCase().includes(q) ||
-    e.email.toLowerCase().includes(q) ||
-    e.message.toLowerCase().includes(q)
-  ) : data;
-
-  const wrap = document.getElementById('list-wrap');
-  if (filtered.length === 0) {
-    wrap.innerHTML = q
-      ? '<div class="empty">No submissions match your search.</div>'
-      : '<div class="empty">No submissions yet. Submit a form above!</div>';
-  } else {
-    wrap.innerHTML = filtered.map(e => `
-      <div class="sub-card">
-        <div class="sub-header">
-          <div>
-            <div class="sub-name">${highlight(e.name, q)}</div>
-            <div class="sub-email">${highlight(e.email, q)}</div>
-          </div>
-          <div style="display:flex;align-items:center;gap:8px;">
-            <span class="stars">${stars(e.rating)}</span>
-            <button class="del-btn" onclick="deleteEntry(${e.id})" title="Delete">🗑</button>
-          </div>
-        </div>
-        <div class="sub-msg">${highlight(e.message, q)}</div>
-        <div class="sub-date">📅 ${e.date}</div>
-      </div>`).join('');
+  function loadEntries() {
+    return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
   }
 
-  // Stats
-  const total = data.length;
-  const avgRating = total ? (data.reduce((s,e)=>s+e.rating,0)/total).toFixed(1) : '—';
-  const dist = [5,4,3,2,1].map(r => ({ r, count: data.filter(e=>e.rating===r).length }));
-  document.getElementById('stats').innerHTML = `
-    <div class="stat-card"><div class="stat-label">Total</div><div class="stat-val">${total}</div></div>
-    <div class="stat-card"><div class="stat-label">Avg Rating</div><div class="stat-val">${avgRating}</div></div>
-    ${dist.map(({r,count})=>`<div class="stat-card"><div class="stat-label">${'⭐'.repeat(r)}</div><div class="stat-val">${count}</div></div>`).join('')}`;
-}
+  function saveEntries(entries) {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(entries));
+  }
 
-render();
+  // ─── Save a new submission ───────────────────────────────────────────────────
+  function saveEntry() {
+    // TODO: Read values from form fields (name, email, message, rating)
+
+    // TODO: Validate — alert and return early if any required field is empty
+
+    // TODO: Create entry object with all fields + id + timestamp
+    // const entry = { id: Date.now(), name, email, message, rating: parseInt(rating), date: new Date().toLocaleString() };
+
+    // TODO: Load existing entries, push the new one, save back
+
+    // TODO: Clear the form fields
+
+    renderList();
+  }
+
+  // ─── Render the submissions list ─────────────────────────────────────────────
+  function renderList() {
+    const entries = loadEntries();
+    const container = document.getElementById('entries-list');
+
+    // TODO: Read the search input value
+    // const query = document.getElementById('search').value.trim().toLowerCase();
+
+    // TODO: Filter entries where name, email, or message contains the query
+
+    // TODO: If filtered array is empty, show the empty state (or "no results" if searching)
+
+    // TODO: Map each entry to an HTML card showing all fields + Delete button
+
+    container.innerHTML = '<p class="empty-state">No entries yet &mdash; add one above.</p>';
+    // TODO: Replace the line above with your rendered HTML
+
+    updateStats(entries);
+  }
+
+  // ─── Delete an entry ────────────────────────────────────────────────────────
+  function deleteEntry(id) {
+    // TODO: Filter out the entry with this id, save, re-render
+  }
+
+  // ─── Update summary stats ────────────────────────────────────────────────────
+  function updateStats(entries) {
+    document.getElementById('total-count').textContent = entries.length;
+    // TODO: Calculate average rating and display in avg-rating span
+    // TODO: Add any other stats you want to show
+  }
+
+  // ─── Export to CSV ───────────────────────────────────────────────────────────
+  function exportCSV() {
+    // TODO: Convert entries array to CSV string
+    // Headers: Name, Email, Message, Rating, Date
+    // Create a Blob, generate a URL, and trigger a download link click
+  }
+
+  // ─── Initialise ─────────────────────────────────────────────────────────────
+  renderList();
 </script>
+
 </body>
 </html>

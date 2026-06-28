@@ -1,49 +1,37 @@
-# Sample 01 — Expense Tracker App
+# HO15 Sample 1 — Expense Tracker
 
-Track your daily spending and get a summary by category.
+## Your task
 
-## What it does
+You track expenses in a spreadsheet that breaks when two people touch it. Build and deploy a full-stack expense tracker.
 
-- Add expenses with description, amount, category, and date
-- Filter the expense list by category
-- See a summary of total spending per category
-- Delete individual expenses
+## What you will build
 
-## Data stored
+A full CRUD app that runs in the browser using localStorage — no server or database needed.
+Deploy free to GitHub Pages.
 
-| Field | Type | Description |
-|-------|------|-------------|
-| id | INTEGER | Auto-generated primary key |
-| description | TEXT | What the expense was for |
-| amount | REAL | Amount in dollars |
-| category | TEXT | One of: Food, Transport, Housing, etc. |
-| date | TEXT | Date of expense (YYYY-MM-DD) |
+## Features to implement
 
-## API Routes
+**Fields:**
+- Description
+- Amount
+- Category (Food / Transport / Work / Other)
+- Date
 
-| Method | Path | Description |
-|--------|------|-------------|
-| GET | /api/expenses | Returns all expenses + category summary |
-| POST | /api/expenses | Create a new expense |
-| DELETE | /api/expenses/:id | Delete an expense |
+**Operations:**
+- Add expense
+- Filter by category
+- Delete entry
+- Show total by category
+- Export to CSV
 
-## Setup
+## How to build it
 
-```bash
-npm install
-cp .env.example .env
-npm start
-```
-
-Open http://localhost:3000
-
-## Docker
-
-```bash
-docker build -t expense-tracker .
-docker run -p 3000:3000 expense-tracker
-```
+1. Open index.html in your browser — you should see the skeleton layout
+2. Read the TODO comments in the HTML and JavaScript
+3. Fill in: the form fields, the localStorage functions, the list rendering
+4. Test all operations (add, view, delete, filter, export)
+5. Push to GitHub and enable Pages for a live link
 
 ## Live URL
 
-> **Deployed at:** https://your-app-url.com  ← replace after deployment
+> **Deployed at:** _(paste your GitHub Pages URL here after deploying)_

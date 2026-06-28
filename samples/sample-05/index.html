@@ -1,220 +1,217 @@
+<!-- TODO: Fill in the form fields, implement the functions in the script block, and style any remaining sections -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Leave Request Tracker — HO15</title>
-<style>
-* { margin:0; padding:0; box-sizing:border-box; }
-body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif; background:#F8F9FA; color:#1a1a2e; min-height:100vh; }
-:root { --color:#BE185D; }
-.banner { background:#FEF3C7; border-left:4px solid #D97706; padding:10px 20px; font-size:13px; color:#92400E; text-align:center; }
-header { background:var(--color); color:#fff; padding:24px 32px; }
-header h1 { font-size:22px; font-weight:800; margin-bottom:4px; }
-header p { font-size:14px; opacity:.85; }
-.container { max-width:960px; margin:0 auto; padding:24px 16px; }
-.card { background:#fff; border-radius:10px; box-shadow:0 1px 6px rgba(0,0,0,.08); padding:24px; margin-bottom:20px; }
-.card h2 { font-size:16px; font-weight:700; margin-bottom:16px; color:var(--color); }
-.form-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
-@media(max-width:600px){ .form-grid{ grid-template-columns:1fr; } }
-label { font-size:13px; font-weight:600; color:#374151; display:block; margin-bottom:4px; }
-input, select, textarea { width:100%; padding:9px 12px; border:1px solid #D1D5DB; border-radius:6px; font-size:14px; outline:none; transition:border .2s; }
-input:focus, select:focus, textarea:focus { border-color:var(--color); }
-textarea { resize:vertical; min-height:60px; }
-.btn { padding:10px 20px; background:var(--color); color:#fff; border:none; border-radius:6px; font-size:14px; font-weight:600; cursor:pointer; }
-.btn:hover { opacity:.88; }
-.filter-bar { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:16px; }
-.filter-btn { padding:6px 14px; border:2px solid #E5E7EB; background:#fff; border-radius:20px; font-size:13px; cursor:pointer; font-weight:600; color:#6B7280; }
-.filter-btn.active { border-color:var(--color); color:var(--color); background:#FDF2F8; }
-table { width:100%; border-collapse:collapse; }
-th { text-align:left; font-size:12px; font-weight:700; color:#9CA3AF; text-transform:uppercase; letter-spacing:.05em; padding:8px 10px; border-bottom:2px solid #F3F4F6; }
-td { padding:10px 10px; font-size:13.5px; border-bottom:1px solid #F9FAFB; vertical-align:middle; }
-tr:last-child td { border-bottom:none; }
-.status-badge { display:inline-block; padding:3px 10px; border-radius:12px; font-size:12px; font-weight:700; }
-.s-pending { background:#FEF3C7; color:#D97706; }
-.s-approved { background:#D1FAE5; color:#065F46; }
-.s-rejected { background:#FEE2E2; color:#991B1B; }
-.type-badge { display:inline-block; padding:2px 8px; border-radius:10px; font-size:11px; font-weight:700; }
-.t-Annual { background:#DBEAFE; color:#1D4ED8; }
-.t-Sick { background:#FCE7F3; color:#BE185D; }
-.t-Casual { background:#D1FAE5; color:#065F46; }
-.t-Unpaid { background:#F3F4F6; color:#6B7280; }
-.t-Maternity { background:#EDE9FE; color:#6D28D9; }
-.t-Other { background:#FEF3C7; color:#D97706; }
-.action-btn { border:none; border-radius:5px; padding:4px 9px; font-size:12px; font-weight:600; cursor:pointer; margin-right:3px; }
-.approve-btn { background:#D1FAE5; color:#065F46; }
-.reject-btn { background:#FEE2E2; color:#991B1B; }
-.del-btn { background:#F3F4F6; color:#6B7280; }
-.action-btn:hover { opacity:.8; }
-.days-chip { display:inline-block; background:#F9FAFB; border:1px solid #E5E7EB; padding:2px 8px; border-radius:10px; font-size:12px; color:#374151; font-weight:600; }
-.stats-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(140px,1fr)); gap:12px; }
-.stat-card { background:#F9FAFB; border-radius:8px; padding:14px 16px; }
-.stat-label { font-size:12px; color:#9CA3AF; font-weight:600; text-transform:uppercase; }
-.stat-val { font-size:24px; font-weight:800; color:var(--color); margin-top:4px; }
-.empty { text-align:center; padding:32px; color:#9CA3AF; font-size:14px; }
-.reason-cell { max-width:180px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Leave Request Tracker — HO15</title>
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif; background:#F8F9FA; color:#1a1a2e; min-height:100vh; }
+    :root { --color:#BE185D; }
+    .todo-bar { background:#FEF3C7; border-left:4px solid #D97706; padding:10px 20px; font-size:13px; color:#92400E; }
+    header { background:var(--color); color:#fff; padding:24px 32px; }
+    header h1 { font-size:22px; font-weight:800; margin-bottom:4px; }
+    header p { font-size:14px; opacity:.85; }
+    .container { max-width:960px; margin:0 auto; padding:24px 16px; }
+    .card { background:#fff; border-radius:10px; box-shadow:0 1px 6px rgba(0,0,0,.08); padding:24px; margin-bottom:20px; }
+    .card h2 { font-size:16px; font-weight:700; margin-bottom:16px; color:var(--color); }
+    .form-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+    @media(max-width:600px){ .form-grid{ grid-template-columns:1fr; } }
+    label { font-size:13px; font-weight:600; color:#374151; display:block; margin-bottom:4px; }
+    input, select, textarea { width:100%; padding:9px 12px; border:1px solid #D1D5DB; border-radius:6px; font-size:14px; outline:none; }
+    input:focus, select:focus, textarea:focus { border-color:var(--color); }
+    textarea { resize:vertical; min-height:60px; }
+    .btn { padding:10px 20px; background:var(--color); color:#fff; border:none; border-radius:6px; font-size:14px; font-weight:600; cursor:pointer; margin-top:12px; }
+    .filter-bar { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:16px; }
+    .filter-btn { padding:6px 14px; border:2px solid #E5E7EB; background:#fff; border-radius:20px; font-size:13px; cursor:pointer; font-weight:600; color:#6B7280; }
+    .filter-btn.active { border-color:var(--color); color:var(--color); }
+    .stats-bar { display:flex; gap:12px; flex-wrap:wrap; }
+    .stat-box { background:#F9FAFB; border-radius:8px; padding:12px 16px; min-width:120px; }
+    .stat-label { font-size:11px; color:#9CA3AF; font-weight:700; text-transform:uppercase; letter-spacing:.04em; }
+    .stat-val { font-size:20px; font-weight:800; color:var(--color); margin-top:2px; }
+    .empty-state { text-align:center; padding:32px; color:#9CA3AF; font-size:14px; }
+  </style>
 </head>
 <body>
-<div class="banner">📁 Data saved in your browser (localStorage) — clears if you clear browser data</div>
-<header>
-  <h1>🗓 Leave Request Tracker</h1>
-  <p>Submit and manage employee leave requests — all data stored locally in your browser</p>
-</header>
-<div class="container">
-  <!-- Request Form -->
-  <div class="card">
-    <h2>Submit Leave Request</h2>
-    <div class="form-grid">
-      <div>
-        <label>Employee Name</label>
-        <input type="text" id="empname" placeholder="Full name">
-      </div>
-      <div>
-        <label>Leave Type</label>
-        <select id="ltype">
-          <option>Annual</option>
-          <option>Sick</option>
-          <option>Casual</option>
-          <option>Unpaid</option>
-          <option>Maternity</option>
-          <option>Other</option>
-        </select>
-      </div>
-      <div>
-        <label>Start Date</label>
-        <input type="date" id="sdate">
-      </div>
-      <div>
-        <label>End Date</label>
-        <input type="date" id="edate">
-      </div>
-      <div style="grid-column:1/-1">
-        <label>Reason</label>
-        <textarea id="reason" placeholder="Brief reason for leave…"></textarea>
-      </div>
-    </div>
-    <br>
-    <button class="btn" onclick="submitRequest()">Submit Request</button>
+
+  <div class="todo-bar">
+    Starter skeleton — open README.md for instructions, then fill in the TODOs below.
   </div>
 
-  <!-- All Requests -->
-  <div class="card">
-    <h2>All Leave Requests</h2>
-    <div class="filter-bar">
-      <button class="filter-btn active" onclick="setFilter('All',this)">All</button>
-      <button class="filter-btn" onclick="setFilter('pending',this)">Pending</button>
-      <button class="filter-btn" onclick="setFilter('approved',this)">Approved</button>
-      <button class="filter-btn" onclick="setFilter('rejected',this)">Rejected</button>
-    </div>
-    <div id="list-wrap"></div>
-  </div>
+  <header>
+    <h1>Leave Request Tracker</h1>
+    <p>Submit and manage employee leave requests — all data stored locally in your browser</p>
+  </header>
 
-  <!-- Summary -->
-  <div class="card">
-    <h2>Summary</h2>
-    <div class="stats-grid" id="stats"></div>
-  </div>
-</div>
+  <div class="container">
+
+    <!-- FORM SECTION -->
+    <div class="card">
+      <h2>Submit Leave Request</h2>
+      <div class="form-grid">
+
+        <!-- TODO: Add a label + input for Employee Name -->
+        <div>
+          <label>Employee Name</label>
+          <input type="text" id="empname" placeholder="Full name">
+        </div>
+
+        <!-- TODO: Add a label + select for Leave Type (Annual / Sick / Other) -->
+        <div>
+          <label>Leave Type</label>
+          <select id="ltype">
+            <option value="">-- select type --</option>
+            <!-- TODO: Add options: Annual, Sick, Other -->
+          </select>
+        </div>
+
+        <!-- TODO: Add a label + date input for Start Date -->
+        <div>
+          <label>Start Date</label>
+          <input type="date" id="sdate">
+        </div>
+
+        <!-- TODO: Add a label + date input for End Date -->
+        <div>
+          <label>End Date</label>
+          <input type="date" id="edate">
+        </div>
+
+        <!-- TODO: Add a label + textarea for Reason -->
+        <div style="grid-column:1/-1">
+          <label>Reason</label>
+          <textarea id="reason" placeholder="Brief reason for leave..."></textarea>
+        </div>
+
+      </div>
+      <button class="btn" onclick="saveEntry()">Submit Request</button>
+    </div>
+
+    <!-- LIST SECTION -->
+    <div class="card">
+      <h2>All Leave Requests</h2>
+
+      <!-- TODO: Add filter buttons for All / Pending / Approved / Rejected -->
+      <div class="filter-bar">
+        <button class="filter-btn active" onclick="setFilter('all', this)">All</button>
+        <!-- TODO: Add buttons for Pending, Approved, Rejected -->
+      </div>
+
+      <div id="entries-list">
+        <p class="empty-state">No entries yet &mdash; add one above.</p>
+      </div>
+    </div>
+
+    <!-- STATS SECTION -->
+    <div class="card">
+      <h2>Summary</h2>
+      <div class="stats-bar">
+        <div class="stat-box">
+          <div class="stat-label">Total Requests</div>
+          <div class="stat-val" id="total-count">0</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-label">Pending</div>
+          <div class="stat-val" id="pending-count">0</div>
+        </div>
+        <!-- TODO: Add stat boxes for Approved and Rejected counts -->
+        <!-- TODO: Add a "Days Approved" counter (sum of days for approved requests) -->
+      </div>
+    </div>
+
+  </div><!-- /container -->
 
 <script>
-const KEY = 'ho15_leaves';
-let filterStatus = 'All';
-function load() { return JSON.parse(localStorage.getItem(KEY) || '[]'); }
-function save(d) { localStorage.setItem(KEY, JSON.stringify(d)); }
+  // ─── Data storage ────────────────────────────────────────────────────────────
+  const STORAGE_KEY = 'ho15-leave-requests';
+  let activeFilter = 'all';
 
-const today = new Date().toISOString().split('T')[0];
-document.getElementById('sdate').value = today;
-document.getElementById('edate').value = today;
-
-function daysDiff(s, e) {
-  const ms = new Date(e) - new Date(s);
-  return Math.round(ms / 86400000) + 1;
-}
-
-function submitRequest() {
-  const empname = document.getElementById('empname').value.trim();
-  const ltype = document.getElementById('ltype').value;
-  const sdate = document.getElementById('sdate').value;
-  const edate = document.getElementById('edate').value;
-  const reason = document.getElementById('reason').value.trim();
-  if (!empname || !sdate || !edate || !reason) { alert('Please fill all fields.'); return; }
-  if (new Date(edate) < new Date(sdate)) { alert('End date must be on or after start date.'); return; }
-  const data = load();
-  const days = daysDiff(sdate, edate);
-  data.unshift({ id: Date.now(), empname, ltype, sdate, edate, reason, days, status: 'pending', submitted: new Date().toLocaleDateString() });
-  save(data);
-  document.getElementById('empname').value = '';
-  document.getElementById('reason').value = '';
-  render();
-  alert(`✅ Leave request submitted for ${days} day(s).`);
-}
-
-function updateStatus(id, status) {
-  const data = load();
-  const idx = data.findIndex(r => r.id === id);
-  if (idx >= 0) { data[idx].status = status; save(data); render(); }
-}
-
-function deleteRequest(id) {
-  if (!confirm('Delete this leave request?')) return;
-  save(load().filter(r => r.id !== id));
-  render();
-}
-
-function setFilter(f, btn) {
-  filterStatus = f;
-  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
-  render();
-}
-
-function render() {
-  const data = load();
-  const filtered = filterStatus === 'All' ? data : data.filter(r => r.status === filterStatus);
-  const wrap = document.getElementById('list-wrap');
-  if (filtered.length === 0) {
-    wrap.innerHTML = filterStatus === 'All'
-      ? '<div class="empty">No leave requests yet. Submit one above!</div>'
-      : `<div class="empty">No ${filterStatus} requests.</div>`;
-  } else {
-    wrap.innerHTML = `<table>
-      <thead><tr><th>Employee</th><th>Type</th><th>Period</th><th>Days</th><th>Reason</th><th>Status</th><th>Actions</th></tr></thead>
-      <tbody>${filtered.map(r => `
-        <tr>
-          <td><strong>${r.empname}</strong><br><small style="color:#9CA3AF">Submitted ${r.submitted}</small></td>
-          <td><span class="type-badge t-${r.ltype}">${r.ltype}</span></td>
-          <td style="font-size:12px">${r.sdate}<br>to ${r.edate}</td>
-          <td><span class="days-chip">${r.days}d</span></td>
-          <td class="reason-cell" title="${r.reason}">${r.reason}</td>
-          <td><span class="status-badge s-${r.status}">${r.status}</span></td>
-          <td>
-            ${r.status === 'pending' ? `
-              <button class="action-btn approve-btn" onclick="updateStatus(${r.id},'approved')">✓ Approve</button>
-              <button class="action-btn reject-btn" onclick="updateStatus(${r.id},'rejected')">✕ Reject</button>
-            ` : ''}
-            <button class="action-btn del-btn" onclick="deleteRequest(${r.id})">🗑</button>
-          </td>
-        </tr>`).join('')}
-      </tbody>
-    </table>`;
+  function loadEntries() {
+    return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
   }
 
-  const counts = { pending:0, approved:0, rejected:0 };
-  let totalDaysApproved = 0;
-  data.forEach(r => {
-    counts[r.status]++;
-    if (r.status === 'approved') totalDaysApproved += r.days;
-  });
-  document.getElementById('stats').innerHTML = `
-    <div class="stat-card"><div class="stat-label">Total Requests</div><div class="stat-val">${data.length}</div></div>
-    <div class="stat-card"><div class="stat-label" style="color:#D97706">Pending</div><div class="stat-val" style="color:#D97706">${counts.pending}</div></div>
-    <div class="stat-card"><div class="stat-label" style="color:#065F46">Approved</div><div class="stat-val" style="color:#065F46">${counts.approved}</div></div>
-    <div class="stat-card"><div class="stat-label" style="color:#991B1B">Rejected</div><div class="stat-val" style="color:#991B1B">${counts.rejected}</div></div>
-    <div class="stat-card"><div class="stat-label">Days Approved</div><div class="stat-val">${totalDaysApproved}</div></div>`;
-}
+  function saveEntries(entries) {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(entries));
+  }
 
-render();
+  // ─── Calculate days between two dates ───────────────────────────────────────
+  function calcDays(startDate, endDate) {
+    // TODO: Return the number of calendar days from startDate to endDate (inclusive)
+    // Hint: (new Date(endDate) - new Date(startDate)) / 86400000 + 1
+    return 1; // placeholder
+  }
+
+  // ─── Save a new leave request ────────────────────────────────────────────────
+  function saveEntry() {
+    // TODO: Read values from form fields (empname, ltype, sdate, edate, reason)
+
+    // TODO: Validate — alert and return early if any required field is empty
+
+    // TODO: Validate dates — alert if end date is before start date
+
+    // TODO: Calculate number of days using calcDays()
+
+    // TODO: Create entry object with all fields + id + days + status: 'pending' + submitted date
+
+    // TODO: Load entries, push new entry, save back, clear form, re-render
+
+    renderList();
+  }
+
+  // ─── Render the requests list ────────────────────────────────────────────────
+  function renderList() {
+    const entries = loadEntries();
+    const container = document.getElementById('entries-list');
+
+    // TODO: Filter entries by activeFilter ('all' shows everything, otherwise match status)
+
+    // TODO: If filtered array is empty, show the empty state
+
+    // TODO: Map each entry to an HTML card or table row showing:
+    //       Employee name, Leave type, Start-End date range, Days count, Reason, Status badge
+    //       For pending entries: Approve and Reject buttons
+    //       Always: Delete button
+
+    container.innerHTML = '<p class="empty-state">No entries yet &mdash; add one above.</p>';
+    // TODO: Replace the line above with your rendered HTML
+
+    updateStats(entries);
+  }
+
+  // ─── Approve or reject a request ────────────────────────────────────────────
+  function updateStatus(id, status) {
+    // TODO: Find entry by id, update its status, save back, re-render
+  }
+
+  // ─── Delete a request ────────────────────────────────────────────────────────
+  function deleteEntry(id) {
+    // TODO: Filter out the entry with this id, save, re-render
+  }
+
+  // ─── Filter by status ────────────────────────────────────────────────────────
+  function setFilter(status, btn) {
+    activeFilter = status;
+    // TODO: Update active class on filter buttons
+    renderList();
+  }
+
+  // ─── Update summary stats ────────────────────────────────────────────────────
+  function updateStats(entries) {
+    document.getElementById('total-count').textContent = entries.length;
+    const pending = entries.filter(e => e.status === 'pending').length;
+    document.getElementById('pending-count').textContent = pending;
+    // TODO: Count approved and rejected entries and update their stat boxes
+    // TODO: Sum days for approved requests and display
+  }
+
+  // ─── Initialise ──────────────────────────────────────────────────────────────
+  const today = new Date().toISOString().split('T')[0];
+  document.getElementById('sdate').value = today;
+  document.getElementById('edate').value = today;
+
+  renderList();
 </script>
+
 </body>
 </html>

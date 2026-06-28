@@ -1,53 +1,38 @@
-# Sample 05 — Leave Request Tracker
+# HO15 Sample 5 — Leave Request Tracker
 
-Submit and manage employee leave requests with an approval workflow.
+## Your task
 
-## What it does
+Your team handles leave requests over email and nothing is recorded. Build and deploy a leave-request tracker.
 
-- Submit leave requests with employee name, leave type, date range, and reason
-- Validates that end date is not before start date
-- Review and approve or reject pending requests
-- Filter requests by status (All / Pending / Approved / Rejected)
-- See live counts on each status tab
-- Automatically shows how many days each request spans
+## What you will build
 
-## Data stored
+A full CRUD app that runs in the browser using localStorage — no server or database needed.
+Deploy free to GitHub Pages.
 
-| Field | Type | Description |
-|-------|------|-------------|
-| id | INTEGER | Auto-generated primary key |
-| employee_name | TEXT | Name of the employee |
-| leave_type | TEXT | Annual / Sick / Personal / Maternity / Paternity / Unpaid |
-| start_date | TEXT | Leave start date (YYYY-MM-DD) |
-| end_date | TEXT | Leave end date (YYYY-MM-DD) |
-| reason | TEXT | Reason for leave |
-| status | TEXT | pending / approved / rejected |
+## Features to implement
 
-## API Routes
+**Fields:**
+- Employee name
+- Leave type (Annual / Sick / Other)
+- Start date
+- End date
+- Reason
 
-| Method | Path | Description |
-|--------|------|-------------|
-| GET | /api/requests | List all requests (optional ?status= filter) |
-| POST | /api/requests | Submit a new leave request |
-| PATCH | /api/requests/:id | Approve or reject a pending request |
+**Operations:**
+- Submit request
+- View all requests
+- Approve / Reject
+- Filter by status
+- Show days-remaining counter
 
-## Setup
+## How to build it
 
-```bash
-npm install
-cp .env.example .env
-npm start
-```
-
-Open http://localhost:3000
-
-## Docker
-
-```bash
-docker build -t leave-requests .
-docker run -p 3000:3000 leave-requests
-```
+1. Open index.html in your browser — you should see the skeleton layout
+2. Read the TODO comments in the HTML and JavaScript
+3. Fill in: the form fields, the localStorage functions, the list rendering
+4. Test all operations (submit, view, approve/reject, filter)
+5. Push to GitHub and enable Pages for a live link
 
 ## Live URL
 
-> **Deployed at:** https://your-app-url.com  ← replace after deployment
+> **Deployed at:** _(paste your GitHub Pages URL here after deploying)_

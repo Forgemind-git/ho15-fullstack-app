@@ -1,35 +1,42 @@
-# HO15 — Deployed Full-Stack App
+# HO15 — Deployed Full-Stack App (Starter Branch)
 
 > Hands-on portfolio project · **Week 6** · **Solo** · module M17. Part of the **ForgeMind AI — AI Productivity Essentials** course.
 
-## Goal
+**You are on the `starter` branch** — this is the skeleton for students to fill in.
+To see a completed reference implementation, switch to the `main` branch.
 
-**Done when:** Frontend + backend + a database, deployed live
+## Your goal
 
-## What to ship
+Build and deploy a full CRUD app that runs in the browser using localStorage.
+Deploy free to GitHub Pages — no server or database needed.
 
-Full source (frontend + backend) + README with the live URL + the data it stores.
+**Done when:** You have a working app at a live GitHub Pages URL.
 
-## Pick a problem statement
+## Pick one problem statement
 
-Choose **one** of these real use-cases — or bring your own (get it approved first):
+Choose **one** sample from the list below — or bring your own (get it approved first):
 
-1. You track expenses, inventory or habits in a spreadsheet that breaks the moment two people touch it. Build and deploy a full-stack CRUD tracker with a frontend, a backend and a database that stores each record so anyone can add, edit and delete entries. Success: a live URL where adding an item persists, with the README naming what it stores.
+| # | Problem | Folder |
+|---|---------|--------|
+| 1 | Expense tracker — beats a shared spreadsheet | [samples/sample-01/](./samples/sample-01/) |
+| 2 | Booking app — stops double-bookings via WhatsApp | [samples/sample-02/](./samples/sample-02/) |
+| 3 | Form collector — captures scattered feedback | [samples/sample-03/](./samples/sample-03/) |
+| 4 | URL shortener / bookmark manager | [samples/sample-04/](./samples/sample-04/) |
+| 5 | Leave-request tracker — replaces email chaos | [samples/sample-05/](./samples/sample-05/) |
 
-2. Your small business takes bookings over WhatsApp and double-books constantly. Build and deploy a full-stack booking or waitlist app with a backend that saves each entry to a database. Success: a live URL where submitting a booking stores it and shows up in the list, with the README describing the data it keeps.
+## How to use this starter
 
-3. You collect feedback or sign-ups through scattered messages and lose half of them. Build and deploy a full-stack form-collection app that saves each submission to a database and lists them back. Success: a live URL where a submitted form persists and appears in a list view, with the README naming what it stores.
+1. Open the landing page (`index.html`) to browse the samples.
+2. Pick one sample folder and open its `README.md` for full instructions.
+3. Open the sample's `index.html` in your browser — you will see a skeleton layout.
+4. Read the TODO comments in the HTML and JavaScript and fill them in using Claude.ai.
+5. Test all operations, then push to GitHub and enable Pages for a live link.
+6. Paste your live URL in the sample's README where it says "Deployed at".
 
-4. You share long ugly links and lose track of your bookmarks. Build and deploy a full-stack URL shortener or bookmark manager with a backend and database that persists each entry. Success: a live URL where a shortened link or saved bookmark survives a refresh, with the README explaining the stored data.
+## What to submit
 
-5. Your team handles leave requests or asset checkouts over email and nothing is recorded. Build and deploy a small full-stack internal tool with a database that stores each request or checkout. Success: a live URL where a submitted request persists and is listed for an approver, with the README describing what it stores.
-
-## How to use this repo
-
-1. Click **Use this template** to create your own copy.
-2. Build your chosen project in your copy.
-3. Replace this section of the README with: what you built, the problem it solves, and how to run it.
+Your GitHub Pages URL + the sample folder you built (with your filled-in `index.html`).
 
 ---
 
-*HO15 · Solo · ForgeMind AI Course · module M17 (Week 6)*
+*HO15 · Starter Branch · ForgeMind AI Course · module M17 (Week 6)*
